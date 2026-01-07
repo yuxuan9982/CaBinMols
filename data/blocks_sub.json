@@ -1,0 +1,3610 @@
+{
+  "block_smi": {
+    "0": "[*:1]C",
+    "1": "[*:1]C1C(C)CC(C)CC1C",
+    "2": "[*:1]C1CCCCC1",
+    "3": "[*:1]C1C(C(C)C)CCCC1C(C)C",
+    "4": "[*:1]CC1CCCCC1",
+    "5": "[*:1]C(C)C",
+    "6": "[*:1]CCCC",
+    "7": "[*:1]C(C)(C)C",
+    "8": "[*:1]CC",
+    "9": "[*:1]Cl",
+    "10": "[*:1]CC=C",
+    "11": "[*:1]CCC",
+    "12": "[*:1]CCCC[*:2]",
+    "13": "[*:1]C=CC=C[*:2]",
+    "14": "[*:1]CC1C(C)C(C)C(C)C(C)C1C",
+    "15": "[*:1]CC1C(C)CC(C)CC1C",
+    "16": "[*:1]C1CCC(OC)CC1",
+    "17": "[*:1]C(C1CCCCC1)C1CCCCC1",
+    "18": "[*:1]C12CC3CC(CC(C3)C1)C2",
+    "19": "[*:1]CCOC",
+    "20": "[*:1]C1C(C)CCCC1C",
+    "21": "[*:1]CC1CCC(C)CC1",
+    "22": "[*:1]CC1CCCCN1",
+    "23": "[*:1]CC1C(C)C(C)CC(C)C1C",
+    "24": "[*:1]CC(C)(C)C",
+    "25": "[*:1]CC1CCC(OC)CC1",
+    "26": "[*:1]C1CCCC2CCCC([*:2])C21",
+    "27": "[*:1]C(C)C1CCCCC1",
+    "28": "[*:1]CC1CCC(C#N)CC1",
+    "29": "[*:1]C1CCCCC1C",
+    "30": "[*:1]C1CCCCN1",
+    "31": "[*:1]CC(C)C",
+    "32": "[*:1]C1CCC(C)CC1",
+    "33": "[*:1]C1C(CC)CCCC1CC",
+    "34": "[*:1]CC(=O)NC1CCCCC1",
+    "35": "[*:1]=O",
+    "36": "[*:1]CC1CC(=O)OC2CCC(C)CC12",
+    "37": "[*:1]CC1CCCCC1C",
+    "38": "[*:1]C1CCCCC1C(C)C",
+    "39": "[*:1]CC1CC(OC)C(OC)C(OC)C1",
+    "40": "[*:1]C#N",
+    "41": "[*:1]C(C1CCCCC1)(C1CCCCC1)C1CCCCC1",
+    "42": "[*:1]C1CCC(F)CC1",
+    "43": "[*:1]C1CCCCCCCCCCC1",
+    "44": "[*:1]CC1C(F)C(F)C(F)C(F)C1F",
+    "45": "[*:1]CC1CCC([N+](=O)[O-])CC1",
+    "46": "[*:1]CCO",
+    "47": "[*:1]OC",
+    "48": "[*:1]C1C(F)CCCC1F",
+    "49": "[*:1]C1CCCCC1C1CCCCC1",
+    "50": "[*:1]CC1C2CCCCC2CC2CCCCC21",
+    "51": "[*:1]CC1CCC(F)CC1",
+    "52": "[*:1]C1C(C(C2CCCCC2)C2CCCCC2)CC(C)CC1C(C1CCCCC1)C1CCCCC1",
+    "53": "[*:1]C1CCCCC1C(C)(C)C",
+    "54": "[*:1]CC(=O)NC(C)(C)C",
+    "55": "[*:1]CC(OCC)OCC",
+    "56": "[*:1]CC1(C)COC1",
+    "57": "[*:1]CC1CCC(C=C)CC1",
+    "58": "[*:1]CCCOC",
+    "59": "[*:1]OCCCC",
+    "60": "[*:1]C1(CC)C2CCCCC2C2CCCCC21",
+    "61": "[*:1]C1CC(C)CC(C)C1",
+    "62": "[*:1]CC(N)=O",
+    "63": "[*:1]CC1CCC(C(=O)OC)CC1",
+    "64": "[*:1]CC1CCCCC1C#N",
+    "65": "[*:1]CCSC1CCCCC1",
+    "66": "[*:1]/C(C)=N/C1C(C(C)C)CCCC1C(C)C",
+    "67": "[*:1]Br",
+    "68": "[*:1]C1C(C(C)C)CC(OC)CC1C(C)C",
+    "69": "[*:1]C1C(C(C2CCCCC2)C2CCCCC2)CC(OC)CC1C(C1CCCCC1)C1CCCCC1",
+    "70": "[*:1]C1C(C(CC)CC)CCCC1C(CC)CC",
+    "71": "[*:1]C1C(C)CCC2CCC(C)CC21",
+    "72": "[*:1]C1C(C2CCCCC2)CCC2CCC(C3CCCCC3)CC21",
+    "73": "[*:1]C1CC2CC(C1C)C2(C)C",
+    "74": "[*:1]C1CCC(C(C)C)CC1",
+    "75": "[*:1]C1CCC([N+](=O)[O-])CC1[N+](=O)[O-]",
+    "76": "[*:1]C1CCCCC1O",
+    "77": "[*:1]C1CCCCC1OC",
+    "78": "[*:1]CC(=C)C",
+    "79": "[*:1]CC(=O)C(C)(C)C",
+    "80": "[*:1]CC(=O)OCC",
+    "81": "[*:1]CC1CCCC(C#N)C1",
+    "82": "[*:1]CCC1CCCCC1",
+    "83": "[*:1]CCCCCC",
+    "84": "[*:1]CCCCCCCCCCCCCCCCCC",
+    "85": "[*:1]C(=O)OC",
+    "86": "[*:1]C(C)C1CCCC2CCCCC21",
+    "87": "[*:1]C(C1CCCC2CCCCC21)C(C)(C)C",
+    "88": "[*:1]C(F)(F)F",
+    "89": "[*:1]C/C(=N/C1C(C(C)C)CCCC1C(C)C)C1CCCCC1",
+    "90": "[*:1]C1C(C)CC(C)CC1C(C1CCCCC1)C1CCCCC1",
+    "91": "[*:1]C1C2CCCCC2C=CC2CCCCC21",
+    "92": "[*:1]C1CC(C(C)(C)C)CC(C(C)(C)C)C1",
+    "93": "[*:1]C1CCC(C)CC1C",
+    "94": "[*:1]C1CCC(C2NC(C(C)(C)C)NO2)CC1",
+    "95": "[*:1]C1CCC(Cl)CC1",
+    "96": "[*:1]C1CCC([N+](=O)[O-])CC1",
+    "97": "[*:1]C1CCCCC1CC[*:2]",
+    "98": "[*:1]C1CCCCC1CC[*:2]",
+    "99": "[*:1]C=CC=C([*:2])C",
+    "100": "[*:1]C=CC=C([*:2])C",
+    "101": "[*:1]CC#C",
+    "102": "[*:1]CC(C)(C)O",
+    "103": "[*:1]CC1CC(C)CC(C)C1",
+    "104": "[*:1]CC1CCCC2CCCCC12",
+    "105": "[*:1]CC1CCCC2CCCNC12",
+    "106": "[*:1]CCCC#N",
+    "107": "[*:1]CCCCCCCCCC",
+    "108": "[*:1]CCCCC[*:2]",
+    "109": "[*:1]N",
+    "110": "[*:1]N(C)C",
+    "111": "[*:1]P(=O)(C1CCCCC1)C1CCCCC1",
+    "112": "[*:1]P(C(C)(C)C)C(C)(C)C",
+    "113": "[*:1][C@H]1C[C@H]2C[C@@H]([*:2])C[C@@H](C1)C2",
+    "114": "[*:1][C@]12C[C@H]3C[C@H](C[C@H](C3)C1)C2",
+    "115": "[*:1][N+](=O)[O-]",
+    "116": "[*:1]C(=CC=C[*:2])C1CCCCC1",
+    "117": "[*:1]C(=CC=C[*:2])C1CCCCC1",
+    "118": "[*:1]C(=O)C1CCCCC1C([*:2])=O",
+    "119": "[*:1]C(Br)/C(=N/C1C(C(C)C)CC(Br)CC1C(C)C)C1CCCCC1",
+    "120": "[*:1]C(C1CCCCC1OC)C(C)(C)C",
+    "121": "[*:1]C1C(C(C)C)CC(C(C2CCCCC2)(C2CCCCC2)C2CCCCC2)CC1C(C)C",
+    "122": "[*:1]C1C(C(C)C)CC(C(C2CCCCC2)C2CCCCC2)CC1C(C)C",
+    "123": "[*:1]C1C(C(C)C)CC(S(=O)(=O)C2CCCCC2)CC1C(C)C",
+    "124": "[*:1]C1C(C(C)C)CCC2CCC(C(C)C)CC21",
+    "125": "[*:1]C1C(C(C)C)CCC2CCCCC21",
+    "126": "[*:1]C1C(C(C)C2CCCCC2)CC(C)CC1C(C)C1CCCCC1",
+    "127": "[*:1]C1C(C)CC(Br)CC1C",
+    "128": "[*:1]C1C(C)CC(N(C)C)CC1C",
+    "129": "[*:1]C1C(C)CC(OC)CC1C",
+    "130": "[*:1]C1C(C)CCCC1F",
+    "131": "[*:1]C1C(C2CCC(C)CC2)CCCC1C1CCC(C)CC1",
+    "132": "[*:1]C1C2CCCCC2CC2CCCCC21",
+    "133": "[*:1]C1C2CCCCC2CCC1C(CCC)CCC",
+    "134": "[*:1]C1C2CCCCC2CCC1C1CCCCC1",
+    "135": "[*:1]C1C2CCCCC2CCC1C1CCCCCCC1",
+    "136": "[*:1]C1C2CCCCC2CCC1N1CCCCC1",
+    "137": "[*:1]C1C2CCCCC2CCC1N1CCOCC1",
+    "138": "[*:1]C1CC(Br)CC(Br)C1",
+    "139": "[*:1]C1CC(C)CCC1C(C)C",
+    "140": "[*:1]C1CCCCCCC1",
+    "141": "[*:1]C1CCCCCCCCCCCCCC1",
+    "142": "[*:1]C1NCCCC1C",
+    "143": "[*:1]C1NCCCN1",
+    "144": "[*:1]CC(=O)NC1C(C(C)C)CCCC1C(C)C",
+    "145": "[*:1]CC1CC(=O)OC2C(C)C(C)CCC12",
+    "146": "[*:1]CC1CCC(C(C)(C)C)CC1",
+    "147": "[*:1]CC1CCC2CCCCC2C1",
+    "148": "[*:1]CC1CCCC(OC)C1",
+    "149": "[*:1]CC1CCCCC1OC",
+    "150": "[*:1]CCC(=O)OCC",
+    "151": "[*:1]CCCBr",
+    "152": "[*:1]CCCCC",
+    "153": "[*:1]CCCCC#N",
+    "154": "[*:1]CCCCCC#N",
+    "155": "[*:1]CCCCCCCCCCCC",
+    "156": "[*:1]CCCCCCCCCCCCCC",
+    "157": "[*:1]CCCO",
+    "158": "[*:1]CCC[*:2]",
+    "159": "[*:1]CCC[Si](OC)(OC)OC",
+    "160": "[*:1]CCN1CCOCC1",
+    "161": "[*:1]CCOCC",
+    "162": "[*:1]CCl",
+    "163": "[*:1]CSC1CCCCC1",
+    "164": "[*:1]OCC",
+    "165": "[*:1]OCC1CCCCC1",
+    "166": "[*:1]P(=O)(C(C)(C)C)C(C)(C)C",
+    "167": "[*:1]SC1CCCCC1",
+    "168": "[*:1]C1CCCCC1",
+    "169": "[*:1]C(=O)C1CCCCC1",
+    "170": "[*:1]C(C)(C)CO[*:2]",
+    "171": "[*:1]C(C)(C)CO[*:2]",
+    "172": "[*:1]C(C1CCCCC1C)C1CCCCC1C",
+    "173": "[*:1]C(CC)C1CCCCC1",
+    "174": "[*:1]C/C=C/C",
+    "175": "[*:1]C1(C)C2CCCCC2C2CCCCC21",
+    "176": "[*:1]C1(CC2CCCCC2)C2CCCCC2C2CCCCC21",
+    "177": "[*:1]C1C(C)CC(C(OC)(C(F)(F)F)C(F)(F)F)CC1C",
+    "178": "[*:1]C1C(F)C(F)C(F)C(F)C1F",
+    "179": "[*:1]C1C(F)CC(C)CC1C(C1CCCCC1)C1CCCCC1",
+    "180": "[*:1]C1C(F)CC(F)CC1F",
+    "181": "[*:1]C1C2CCCCC2C([*:2])C2CCCCC12",
+    "182": "[*:1]C1C2CCCCC2CCC1CC[*:2]",
+    "183": "[*:1]C1C2CCCCC2CCC1CC[*:2]",
+    "184": "[*:1]C1C2CCCCC2NC2CCCCC21",
+    "185": "[*:1]C1CC([*:2])C2CCCCC12",
+    "186": "[*:1]C1CC2CC3CCCC(CC4CCCC(CC5CCCC(CC(C1)C2OCCC)C5OCCC)C4OCCC)C3OCCC",
+    "187": "[*:1]C1CCC(F)CC1F",
+    "188": "[*:1]C1CCC(N(C)C)CC1",
+    "189": "[*:1]C1CCC(OC)CC1OC",
+    "190": "[*:1]C1CCC(SC)CC1",
+    "191": "[*:1]C1CCCC2CCCNC12",
+    "192": "[*:1]C1CCCCC1C(C1CCCCC1)C1CCCCC1",
+    "193": "[*:1]C1CCCCC1CC([*:2])CC(C)C",
+    "194": "[*:1]C1CCCCC1CC([*:2])CC(C)C",
+    "195": "[*:1]C1CCCCCC1",
+    "196": "[*:1]C1CCCS1",
+    "197": "[*:1]C1NCCCC1C=C[*:2]",
+    "198": "[*:1]C1NCCCC1C=C[*:2]",
+    "199": "[*:1]C1OC(COC(C)=O)C(OC(C)=O)C(OC(C)=O)C1OC(C)=O",
+    "200": "[*:1]C=C",
+    "201": "[*:1]C=CC=C([*:2])C1C(C(C)C)CC(C(C)C)CC1C(C)C",
+    "202": "[*:1]C=CC=C([*:2])C1C(C(C)C)CC(C(C)C)CC1C(C)C",
+    "203": "[*:1]CC#CC1CCCCC1",
+    "204": "[*:1]CC(=O)C1CCCCC1",
+    "205": "[*:1]CC(=O)N(C)C1CCCCC1",
+    "206": "[*:1]CC(=O)N(CC)CC",
+    "207": "[*:1]CC(=O)NCCC",
+    "208": "[*:1]CC(=O)OC",
+    "209": "[*:1]CC1C(C(C)C)CC(C(C)C)CC1C(C)C",
+    "210": "[*:1]CC1CCC(Cl)CC1",
+    "211": "[*:1]CC1CCC2CCCCC2N1",
+    "212": "[*:1]CC1CCCC(C)C1",
+    "213": "[*:1]CC1CCCC(C2C(C)CC(C)CC2C)N1",
+    "214": "[*:1]CC1CCCCC1P(=S)(C1CCCCC1)C1CCCCC1",
+    "215": "[*:1]CC1CCCS1",
+    "216": "[*:1]CC1CCNCC1",
+    "217": "[*:1]CC1OCCO1",
+    "218": "[*:1]CCC(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)F",
+    "219": "[*:1]CCCN(C)C",
+    "220": "[*:1]CCCN1C(=O)C2CCCCC2C1=O",
+    "221": "[*:1]CCCSC1CCCCC1",
+    "222": "[*:1]CCN(C)C",
+    "223": "[*:1]CCOC1CCCCC1",
+    "224": "[*:1]CCOC1CCCCC1OCC",
+    "225": "[*:1]CCOCCOC",
+    "226": "[*:1]CCSC(C)(C)C",
+    "227": "[*:1]CCSCC",
+    "228": "[*:1]CN1CCCN1",
+    "229": "[*:1]CN1NNC2CCCCC21",
+    "230": "[*:1]COC",
+    "231": "[*:1]CO[C@@H]1[C@H]([*:2])[C@H]2CC[C@]1(C)C2(C)C",
+    "232": "[*:1]CO[C@@H]1[C@H]([*:2])[C@H]2CC[C@]1(C)C2(C)C",
+    "233": "[*:1]N1C(C)CCC1C",
+    "234": "[*:1]N1C(C2CCCCC2)CCC1C1CCCCC1",
+    "235": "[*:1]NC(C)(C)C",
+    "236": "[*:1]OCC([*:2])(C)C",
+    "237": "[*:1]OCC([*:2])(C)C",
+    "238": "[*:1]P(=O)(N(CC)CC)N(CC)CC",
+    "239": "[*:1][C@H]1C[C@H](C)CC[C@H]1C(C)C",
+    "240": "[*:1]/C(=N/C1C(C)CC(C)CC1C)C1CCCCC1",
+    "241": "[*:1]=C",
+    "242": "[*:1]B1N(C2C(C(C)C)CCCC2C(C)C)C=CN1C1C(C(C)C)CCCC1C(C)C",
+    "243": "[*:1]C#C[Si](C)(C)C",
+    "244": "[*:1]C(=CC(=C[*:2])C(C)(C)C)C1CCC(C(F)(F)F)CC1",
+    "245": "[*:1]C(=CC(=C[*:2])C(C)(C)C)C1CCC(C(F)(F)F)CC1",
+    "246": "[*:1]C(=CC=C[*:2])C1C(C(C)C)CC(C(C)C)CC1C(C)C",
+    "247": "[*:1]C(=CC=C[*:2])C1C(C(C)C)CC(C(C)C)CC1C(C)C",
+    "248": "[*:1]C(=CC=C[*:2])N1CNC(C(C)(C)C)C1",
+    "249": "[*:1]C(=CC=C[*:2])N1CNC(C(C)(C)C)C1",
+    "250": "[*:1]C(=O)OCC",
+    "251": "[*:1]C(C(C)C)C1CCCCC1C1CC(C)CC(C)C1",
+    "252": "[*:1]C(C)(C)CC",
+    "253": "[*:1]C(C)(C)CC[*:2]",
+    "254": "[*:1]C(C)(C)CC[*:2]",
+    "255": "[*:1]C(C)C(=O)O",
+    "256": "[*:1]C(C)C1CCCCC1C1CC([Si](C)(C)C)CC([Si](C)(C)C)C1",
+    "257": "[*:1]C(C)C1CCCCC1C1CCCCC1",
+    "258": "[*:1]C(C1CC(C)CCC1C)C1CC(C)CCC1C",
+    "259": "[*:1]C(C1CC(C2CCCCC2)CCC1C)C1CC(C2CCCCC2)CCC1C",
+    "260": "[*:1]C(C1CCCC(C)C1C)C1CCCC(C)C1C",
+    "261": "[*:1]C(C1CCCC2CCCCC21)C1CCCC2CCCCC21",
+    "262": "[*:1]C(C1CCCCC1C)C(C)(C)C",
+    "263": "[*:1]C(C1CCCCN1)C1CCCCN1",
+    "264": "[*:1]C(CC(C)C)CC1CCCCC1[*:2]",
+    "265": "[*:1]C(CC(C)C)CC1CCCCC1[*:2]",
+    "266": "[*:1]C(CC)C1CCCCC1C1CC(C)CC(C)C1",
+    "267": "[*:1]C(CC)C1CCCCC1C1CC([Si](C)(C)C)CC([Si](C)(C)C)C1",
+    "268": "[*:1]C(CC)C1CCCCC1C1CCCCC1",
+    "269": "[*:1]C(CC)CCl",
+    "270": "[*:1]C(CO[*:2])C(C)C",
+    "271": "[*:1]C(CO[*:2])C(C)C",
+    "272": "[*:1]C(CO[*:2])C(C)CC",
+    "273": "[*:1]C(CO[*:2])C(C)CC",
+    "274": "[*:1]C(F)=CC=C[*:2]",
+    "275": "[*:1]C(F)=CC=C[*:2]",
+    "276": "[*:1]C/C(=N\\C1C(C(C)C)CCCC1C(C)C)C1CCCCC1",
+    "277": "[*:1]C1(CCC)C2CCCCC2C2CCCCC21",
+    "278": "[*:1]C1(CCCC)C2CCCCC2C2CCCCC21",
+    "279": "[*:1]C1(CO[*:2])CCCCC1",
+    "280": "[*:1]C1(CO[*:2])CCCCC1",
+    "281": "[*:1]C1C(C(C)C)CC(C(=O)O)CC1C(C)C",
+    "282": "[*:1]C1C(C(C)C)CC(C(=O)OC)CC1C(C)C",
+    "283": "[*:1]C1C(C(C)C)CC(C(C)C)CC1C(C)C",
+    "284": "[*:1]C1C(C(C)C)CC(CCC(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)F)CC1C(C)C",
+    "285": "[*:1]C1C(C(C)C)CC(CN2CCOCC2)CC1C(C)C",
+    "286": "[*:1]C1C(C(C)C)CC(N)CC1C(C)C",
+    "287": "[*:1]C1C(C(C)C)CC(N2CC(C3CCCCC3)NN2)CC1C(C)C",
+    "288": "[*:1]C1C(C(C)C)CC(N=[N+]=[N-])CC1C(C)C",
+    "289": "[*:1]C1C(C(C)C)CC(S(=O)(=O)O~[NaH])CC1C(C)C",
+    "290": "[*:1]C1C(C(C)C)CCC2CC(C(C)C)CCC21",
+    "291": "[*:1]C1C(C(C)C)CCCC1C(C)(C)C[*:2]",
+    "292": "[*:1]C1C(C(C)C)CCCC1C(C)(C)C[*:2]",
+    "293": "[*:1]C1C(C(C2CCC(C)CC2)C2CCC(C)CC2)CC(C)CC1C(C1CCC(C)CC1)C1CCC(C)CC1",
+    "294": "[*:1]C1C(C(C2CCCCC2)C2CCCCC2)CC(C(C)(C)C)CC1C(C1CCCCC1)C1CCCCC1",
+    "295": "[*:1]C1C(C(C2CCCCC2)C2CCCCC2)CC(CC)CC1C(C1CCCCC1)C1CCCCC1",
+    "296": "[*:1]C1C(C(C2CCCCC2)C2CCCCC2)CC(Cl)CC1C(C1CCCCC1)C1CCCCC1",
+    "297": "[*:1]C1C(C(C2CCCCC2)C2CCCCC2)CC([C]C)CC1C(C1CCCCC1)C1CCCCC1",
+    "298": "[*:1]C1C(C(CC(C)C)CC(C)C)CCCC1C(CC(C)C)CC(C)C",
+    "299": "[*:1]C1C(C(CCCC)CCCC)CCCC1C(CCCC)CCCC",
+    "300": "[*:1]C1C(C([2H])([2H])[2H])C([2H])C(C([2H])([2H])[2H])C([2H])C1C([2H])([2H])[2H]",
+    "301": "[*:1]C1C(C([2H])([2H])[2H])C([2H])C(Cl)C([2H])C1C([2H])([2H])[2H]",
+    "302": "[*:1]C1C(C([2H])([2H])[2H])CCCC1C([2H])([2H])[2H]",
+    "303": "[*:1]C1C(C)C(C)C(OCCCC)C2C3C4CCCCC4C(C4CCCCC43)C12",
+    "304": "[*:1]C1C(C)C(C)CC(C)C1C",
+    "305": "[*:1]C1C(C)CC(C(C)(C)C)CC1C",
+    "306": "[*:1]C1C(C)CC(C(C2CCCCC2)C2CCCCC2)CC1C",
+    "307": "[*:1]C1C(C)CC(C)C2C1C(C)C(CC)N2C",
+    "308": "[*:1]C1C(C)CC(C)CC1C(OC)(C(F)(F)F)C(F)(F)F",
+    "309": "[*:1]C1C(C)CC(C2CC(C3CCCCC3)C(C3CCCCC3)C(C3CCCCC3)C2C2CCCCC2)CC1C",
+    "310": "[*:1]C1C(C)CC(C2CCCC3C4CCCC(C5CCC(CCCCCCC6CCC(C7CCCC8C9CCCC(C%10CC(C)C([*:2])C(C)C%10)C9OC87)CC6)CC5)C4OC32)CC1C",
+    "311": "[*:1]C1C(C)CC(Cl)CC1C",
+    "312": "[*:1]C1C(C)CC(N(CC)CC)CC1C",
+    "313": "[*:1]C1C(C)CC(OCC23CC4CC(CC(C4)C2)C3)CC1C",
+    "314": "[*:1]C1C(C)CC(O[Si]([Si](C)(C)C)([Si](C)(C)C)[Si](C)(C)C)CC1C",
+    "315": "[*:1]C1C(C)CCC2CCC(C34CC5CC(CC(C5)C3)C4)CC21",
+    "316": "[*:1]C1C(C)CCC2CCCCC21",
+    "317": "[*:1]C1C(C)CCCC1C(C)C",
+    "318": "[*:1]C1C(C2CCCCC2)CC(C2CCCCC2)CC1C1CCCCC1",
+    "319": "[*:1]C1C(C2CCCCCCC2)CCC2CCC(C3CCCCCCC3)CC21",
+    "320": "[*:1]C1C(CC)CC(C(C2CCCCC2)C2CCCCC2)CC1CC",
+    "321": "[*:1]C1C(Cl)CCCC1Cl",
+    "322": "[*:1]C1C(OCC2CCCCC2)CCCC1C=C[*:2]",
+    "323": "[*:1]C1C(OCC2CCCCC2)CCCC1C=C[*:2]",
+    "324": "[*:1]C1C(OCC2CCCCC2)OC(COCC2CCCCC2)C(OCC2CCCCC2)C1OCC1CCCCC1",
+    "325": "[*:1]C1C(OCCOC)CCCC1OCCOC",
+    "326": "[*:1]C1C2C(C(OCCCC)C3C1[C@H]1C4CCCCC4[C@@H]3C3CCCCC31)[C@@H]1C3CCCCC3[C@H]2C2CCCCC21",
+    "327": "[*:1]C1C2CCCC1OCCCCCCCCOC1CCCC(OCCCCCCCCO2)C1[*:2]",
+    "328": "[*:1]C1C2CCCC2CC2CCCC21",
+    "329": "[*:1]C1C2CCCCC2CCC1C1CCCC1",
+    "330": "[*:1]C1C2CCCCC2CCC1C1CCCCCCCCCCC1",
+    "331": "[*:1]C1CC(C(C)(C)C)CCC1OC",
+    "332": "[*:1]C1CC(C)CCC1C",
+    "333": "[*:1]C1CC(C)CCN1",
+    "334": "[*:1]C1CC(C)SC1C",
+    "335": "[*:1]C1CC(C2C(C)CCCC2C)CC(C2C(C)CCCC2C)C1",
+    "336": "[*:1]C1CC(C2CCCCC2)SC1C",
+    "337": "[*:1]C1CC(OC)C(OC)C(OC)C1",
+    "338": "[*:1]C1CC2CCC3CCC(CC3)CCC1CC2",
+    "339": "[*:1]C1CCC(Br)CC1",
+    "340": "[*:1]C1CCC(C(=O)OCC)CC1",
+    "341": "[*:1]C1CCC(C(C2CCCCC2)(C2CCCCC2)C2CCCCC2)CC1",
+    "342": "[*:1]C1CCC(C2CC(C(C)(C)C)CC(C(C)(C)C)C2)CC1",
+    "343": "[*:1]C1CCC(C2CC(C3CCCCC3)C(C3CCCCC3)C(C3CCCCC3)C2C2CCCCC2)CC1",
+    "344": "[*:1]C1CCC(C2CCCS2)S1",
+    "345": "[*:1]C1CCC(CCCC)CC1",
+    "346": "[*:1]C1CCC(N(CC)CC)CC1C",
+    "347": "[*:1]C1CCC(N2NC(C)CC2C)NN1",
+    "348": "[*:1]C1CCC(OC)NC1",
+    "349": "[*:1]C1CCC(OCC)C2C3C4CCCCC4C(C4CCCCC43)C12",
+    "350": "[*:1]C1CCC(OCCCCCCCCCC)CC1",
+    "351": "[*:1]C1CCC(S(C)(=O)=O)CC1",
+    "352": "[*:1]C1CCC(SC(F)(F)F)CC1",
+    "353": "[*:1]C1CCC2C(=O)N(CCC)C(=O)C3CCCC1C32",
+    "354": "[*:1]C1CCC2C(C)CC(C)NC2N1",
+    "355": "[*:1]C1CCC2CCCCC2C1",
+    "356": "[*:1]C1CCC2CCCCC2N1",
+    "357": "[*:1]C1CCCC(C(C)C)C1C(C)C",
+    "358": "[*:1]C1CCCC2CCCC(C3CCC(OC)CC3)C12",
+    "359": "[*:1]C1CCCCC1/N=C/C1CC(C(C)(C)C)CC(C(C)(C)C)C1O",
+    "360": "[*:1]C1CCCCC1C(C)C1CCCCC1",
+    "361": "[*:1]C1CCCCC1C(F)(F)F",
+    "362": "[*:1]C1CCCCC1C1CCCCC1[*:2]",
+    "363": "[*:1]C1CCCCC1N",
+    "364": "[*:1]C1CCCCC1NC1C(C(C)C)CCCC1C(C)C",
+    "365": "[*:1]C1CCCCC1OCC",
+    "366": "[*:1]C1CCCCC1SC",
+    "367": "[*:1]C1CCNCC1",
+    "368": "[*:1]C1NC2CCCCC2S1",
+    "369": "[*:1]C=C(C=C([*:2])C1CCC(C(F)(F)F)CC1)C(C)(C)C",
+    "370": "[*:1]C=C(C=C([*:2])C1CCC(C(F)(F)F)CC1)C(C)(C)C",
+    "371": "[*:1]CC#N",
+    "372": "[*:1]CC(=O)NCC1CCCCC1",
+    "373": "[*:1]CC(CC)(C1CCCCC1)C1CCCCC1",
+    "374": "[*:1]CC/N=C1/N(C2CCCCC2)/C(=N/C2CCCCC2)C1(C)C",
+    "375": "[*:1]CC1CC(C(=O)OC)CCC1C1CCC(C(=O)OC)CC1",
+    "376": "[*:1]CC1CC(C(C)(C)C)CC(C(C)(C)C)C1",
+    "377": "[*:1]CC1CC(OCC2CCCCC2)CC(OCC2CCCCC2)C1",
+    "378": "[*:1]CC1CCC(C(F)(F)F)CC1",
+    "379": "[*:1]CC1CCC(CC)CC1",
+    "380": "[*:1]CC1CCC(N(C)C)CC1",
+    "381": "[*:1]CC1CCC(N(CC)CC)CC1",
+    "382": "[*:1]CC1CCC(N2CCOCC2)CC1",
+    "383": "[*:1]CC1CCC([Si](OC(C)C)(OC(C)C)OC(C)C)CC1",
+    "384": "[*:1]CC1CCC2CCC3CCCC4CCC1C2C34",
+    "385": "[*:1]CC1CCCC(C)N1",
+    "386": "[*:1]CC1CCCCC1Br",
+    "387": "[*:1]CC1CCCCC1C1CCCCC1",
+    "388": "[*:1]CC1CCCCC1SC",
+    "389": "[*:1]CC1CCCO1",
+    "390": "[*:1]CC1CN(CC2CCCCC2)NN1",
+    "391": "[*:1]CC1COC2CCCCC2O1",
+    "392": "[*:1]CC1OC(OC)C(OC(=O)C2CCCCC2)C(OC(=O)C2CCCCC2)C1OC(=O)C1CCCCC1",
+    "393": "[*:1]CC1OC2OC(C)(C)OC2C2OC(C)(C)OC12",
+    "394": "[*:1]CC=C(C)C",
+    "395": "[*:1]CCC#N",
+    "396": "[*:1]CCC(=O)C1CCCCC1",
+    "397": "[*:1]CCC(=O)OC",
+    "398": "[*:1]CCC(C)(C)C",
+    "399": "[*:1]CCC(F)(F)C(F)(F)C(F)(F)C(F)(F)F",
+    "400": "[*:1]CCC(F)(F)C(F)(F)C(F)(F)F",
+    "401": "[*:1]CCC([*:2])C1CCCCC1",
+    "402": "[*:1]CCC([*:2])C1CCCCC1",
+    "403": "[*:1]CCC1CCC(O)CC1",
+    "404": "[*:1]CCC1CCCCC1[*:2]",
+    "405": "[*:1]CCC1CCCCC1[*:2]",
+    "406": "[*:1]CCC1NCC(C(F)(F)F)CC1Cl",
+    "407": "[*:1]CCCB1OC(C)(C)C(C)(C)O1",
+    "408": "[*:1]CCCC([*:2])C",
+    "409": "[*:1]CCCC([*:2])C",
+    "410": "[*:1]CCCC1CN(C2CCCCC2)NN1",
+    "411": "[*:1]CCCC=C",
+    "412": "[*:1]CCCCCCC",
+    "413": "[*:1]CCCCCCCC",
+    "414": "[*:1]CCCN1C(=O)C2CCCC3CCCC(C1=O)C32",
+    "415": "[*:1]CCCSC(C)C",
+    "416": "[*:1]CCC[Si](OC(C)C)(OC(C)C)OC(C)C",
+    "417": "[*:1]CCCl",
+    "418": "[*:1]CCF",
+    "419": "[*:1]CCN(C(C)C)C(C)C",
+    "420": "[*:1]CCN(CC)CC",
+    "421": "[*:1]CCN1C(=O)C2CCCC3CCCC(C1=O)C32",
+    "422": "[*:1]CCN1C(=O)C2CCCCC2C1=O",
+    "423": "[*:1]CCN1C2CCCCC2C2CCCCC21",
+    "424": "[*:1]CCN1CCCN1",
+    "425": "[*:1]CCN1NC(C)CC1C",
+    "426": "[*:1]CCNC(=O)OC(C)(C)C",
+    "427": "[*:1]CCNC(C)(C)C",
+    "428": "[*:1]CCOC(=O)CNC(=O)OC(C)(C)C",
+    "429": "[*:1]CCOC(C)(C)C",
+    "430": "[*:1]CCOC(C)(C)C(C)C",
+    "431": "[*:1]CCOC1C(C(C)C)CCCC1C(C)C",
+    "432": "[*:1]CCSC(C)C",
+    "433": "[*:1]COC1CC(C)CCC1C(C)C",
+    "434": "[*:1]COC1CCCCC1OC",
+    "435": "[*:1]CO[C@H]1CC2CCCCC2[C@H]1[*:2]",
+    "436": "[*:1]CO[C@H]1CC2CCCCC2[C@H]1[*:2]",
+    "437": "[*:1]CS(=O)(=O)C1CCCCC1",
+    "438": "[*:1]CS(=O)C1CCC(C)CC1",
+    "439": "[*:1]NC(C)=O",
+    "440": "[*:1]NC1CCCCC1",
+    "441": "[*:1]OCC([*:2])C(C)C",
+    "442": "[*:1]OCC([*:2])C(C)C",
+    "443": "[*:1]OCC([*:2])C(C)CC",
+    "444": "[*:1]OCC([*:2])C(C)CC",
+    "445": "[*:1]OCC1([*:2])CCCCC1",
+    "446": "[*:1]OCC1([*:2])CCCCC1",
+    "447": "[*:1]OCC1CC(C)CC(C)C1",
+    "448": "[*:1]OCC=C",
+    "449": "[*:1]OCCCCCC",
+    "450": "[*:1]S(=O)(=O)C1CCC(C)CC1",
+    "451": "[*:1]S(=O)(=O)C1CCCCC1[N+](=O)[O-]",
+    "452": "[*:1][C@@H]1C[C@@H](C)CC[C@@H]1C(C)C",
+    "453": "[*:1]/C(=N/C1C(C(C)C)CCCC1C(C)C)C(C)(C)C",
+    "454": "[*:1]/C(=N/C1C(C(C)C)CCCC1C(C)C)C1CCCCC1",
+    "455": "[*:1]/C(=N/C1C(C)CCCC1C)C1CCCCC1",
+    "456": "[*:1]/C(=N\\C1C(C(C)C)CCCC1C(C)C)C(C)(C)C",
+    "457": "[*:1]/C(=N\\C1C(C)CCCC1C)C(C)(C)C",
+    "458": "[*:1]/C(=N\\C1CCCCC1)C1CCCCC1",
+    "459": "[*:1]/C(C)=N/C1C(C)CCCC1C",
+    "460": "[*:1]/C=C/C(=O)OC",
+    "461": "[*:1]/C=C/C(=O)OCC",
+    "462": "[*:1]/N=C/C1CCCCC1",
+    "463": "[*:1]=NC(C)C",
+    "464": "[*:1]B(C1C(C)CC(C)CC1C)C1C(C)CC(C)CC1C",
+    "465": "[*:1]B1C2CCCC1CCC2",
+    "466": "[*:1]C#CC1CCC(C(F)(F)F)CC1",
+    "467": "[*:1]C#CC1CCCCC1",
+    "468": "[*:1]C(=CC=C[*:2])/C=C/C1CCCCC1",
+    "469": "[*:1]C(=CC=C[*:2])/C=C/C1CCCCC1",
+    "470": "[*:1]C(=CC=C[*:2])C1C(C)CC(C)CC1C",
+    "471": "[*:1]C(=CC=C[*:2])C1C(C)CC(C)CC1C",
+    "472": "[*:1]C(=CC=C[*:2])C1CC(C(F)(F)F)CC(C(F)(F)F)C1",
+    "473": "[*:1]C(=CC=C[*:2])C1CC(C(F)(F)F)CC(C(F)(F)F)C1",
+    "474": "[*:1]C(=CC=C[*:2])C1CCC(C2CCC(C3CCCS3)S2)S1",
+    "475": "[*:1]C(=CC=C[*:2])C1CCC(C2CCC(C3CCCS3)S2)S1",
+    "476": "[*:1]C(=CC=C[*:2])C1CCC(C2CCCCC2)CC1",
+    "477": "[*:1]C(=CC=C[*:2])C1CCC(C2CCCCC2)CC1",
+    "478": "[*:1]C(=CC=C[*:2])C1CCC(C2CCCS2)S1",
+    "479": "[*:1]C(=CC=C[*:2])C1CCC(C2CCCS2)S1",
+    "480": "[*:1]C(=CC=C[*:2])C1CCCC2C1CCN(C)C2C1CCCCC1",
+    "481": "[*:1]C(=CC=C[*:2])C1CCCC2C1CCN(C)C2C1CCCCC1",
+    "482": "[*:1]C(=CC=C[*:2])C1CCCC2C1CCNC2C1CCCCC1",
+    "483": "[*:1]C(=CC=C[*:2])C1CCCC2C1CCNC2C1CCCCC1",
+    "484": "[*:1]C(=CC=C[*:2])C1CCCS1",
+    "485": "[*:1]C(=CC=C[*:2])C1CCCS1",
+    "486": "[*:1]C(=CC=C[*:2])N=P(C1CCCCC1)(C1CCCCC1)C1CCCCC1",
+    "487": "[*:1]C(=CC=C[*:2])N=P(C1CCCCC1)(C1CCCCC1)C1CCCCC1",
+    "488": "[*:1]C(=O)N1CCCC1",
+    "489": "[*:1]C(=O)O",
+    "490": "[*:1]C(C(=O)OCC)C(C)C",
+    "491": "[*:1]C(C)(C)C1=NC(C(C)(C)C)CO1",
+    "492": "[*:1]C(C)(C)C1=NC(C(C)C)CO1",
+    "493": "[*:1]C(C)(C)CB1OC(C)(C)C(C)(C)O1",
+    "494": "[*:1]C(C)C(=O)OCC",
+    "495": "[*:1]C(C)CC",
+    "496": "[*:1]C(C1CCCCC1)(C1CCCCC1)C1CCCCC1Cl",
+    "497": "[*:1]C(C1CCCCC1)C(N)C1CCCCC1",
+    "498": "[*:1]C(CC1CCCCC1)C1CCCCC1",
+    "499": "[*:1]C(CC1CCCCC1[*:2])C1CCCCC1",
+    "500": "[*:1]C(CC1CCCCC1[*:2])C1CCCCC1",
+    "501": "[*:1]C(CCCCCCCC)CCCCCCCC",
+    "502": "[*:1]C(CC[*:2])C1CCCCC1",
+    "503": "[*:1]C(CC[*:2])C1CCCCC1",
+    "504": "[*:1]C(CN(CC1CCCCC1)CC1CCCCC1)C1CCCCC1",
+    "505": "[*:1]C(CO)C(C)C",
+    "506": "[*:1]C(CO)C1CCCCC1",
+    "507": "[*:1]C(F)F",
+    "508": "[*:1]C/C(=N/C1C(C(C)C)CCCC1C(C)C)NC1C(C(C)C)CCCC1C(C)C",
+    "509": "[*:1]C/C(C)=N/C1C(C(C)C)CCCC1C(C)C",
+    "510": "[*:1]C1(COCC)C2CCCCC2C2CCCCC21",
+    "511": "[*:1]C1(CO[*:2])CC(C)CCC1C(C)C",
+    "512": "[*:1]C1(CO[*:2])CC(C)CCC1C(C)C",
+    "513": "[*:1]C1(CO[*:2])CCCCCC1",
+    "514": "[*:1]C1(CO[*:2])CCCCCC1",
+    "515": "[*:1]C12CC3CC(C1)CC(O)(C3)C2",
+    "516": "[*:1]C1=C(C)C=C(C)C=C(C)C1",
+    "517": "[*:1]C1=C(C)C=C(C)C=C(C)C1C1CCCCC1",
+    "518": "[*:1]C1=C(C)C=C(C)C=C(C)C1C1CCCCC1OC(C)C",
+    "519": "[*:1]C1=CC(C(C)(C)C)C(C(C)(C)C)C2CCCC([*:2])C12",
+    "520": "[*:1]C1=CC(C(C)(C)C)C(C(C)(C)C)C2CCCC([*:2])C12",
+    "521": "[*:1]C1=CC=C([*:2])CCC2C(F)C(F)C(CC1)C(F)C2F",
+    "522": "[*:1]C1=CC=C([*:2])CCC2CCC(CC1)CC2",
+    "523": "[*:1]C1=NC(C)(C)CO1",
+    "524": "[*:1]C1C(C(C)C)CC(C#C)CC1C(C)C",
+    "525": "[*:1]C1C(C(C)C)CC(C2CCCC3C2OC2C(C4CCC(C5=NCCO5)CC4)CCCC2C3(C)C)CC1C(C)C",
+    "526": "[*:1]C1C(C(C)C)CC(CN=[N+]=[N-])CC1C(C)C",
+    "527": "[*:1]C1C(C(C)C)CC(N2CC(C3CCC4CCC(=O)OC4C3)NN2)CC1C(C)C",
+    "528": "[*:1]C1C(C(C)C)CCCC1CC[*:2]",
+    "529": "[*:1]C1C(C(C)C)CCCC1CC[*:2]",
+    "530": "[*:1]C1C(C(C)C)CCC[C@@H]1C(C)C",
+    "531": "[*:1]C1C(C)CC(C)CC1C(O)(C(F)(F)F)C(F)(F)F",
+    "532": "[*:1]C1C(C)CC(C)CC1C(OCC)(C(F)(F)F)C(F)(F)F",
+    "533": "[*:1]C1C(C)CC(C)CC1C(OCC=C)(C(F)(F)F)C(F)(F)F",
+    "534": "[*:1]C1C(C)CC(C)CC1C(O[*:2])(C(F)(F)F)C(F)(F)F",
+    "535": "[*:1]C1C(C)CC(C)CC1C(O[*:2])(C(F)(F)F)C(F)(F)F",
+    "536": "[*:1]C1C(C)CC(C)CC1OCCOCCOCCOC1CC(C)CC(C)C1[*:2]",
+    "537": "[*:1]C1C(C)CC(OCCCOCC2C3CCCCC3CC3CCCCC32)CC1C",
+    "538": "[*:1]C1C(C)CCCC1CC",
+    "539": "[*:1]C1C(C)CCCC1CC1CCCCC1",
+    "540": "[*:1]C1C(C)CCCC1CC[*:2]",
+    "541": "[*:1]C1C(C)CCCC1CC[*:2]",
+    "542": "[*:1]C1C(C2=NC(C3CCCCC3)CO2)CCC2CCCCC21",
+    "543": "[*:1]C1C(F)C(F)NC(F)C1F",
+    "544": "[*:1]C1C(O)CC2CCCCC21",
+    "545": "[*:1]C1C2C3C4CCCCC4C(C4CCCCC43)C2C(OCCCC)C2C3C4CCCCC4C(C4CCCCC43)C12",
+    "546": "[*:1]C1C2CC3CC(C2)CC1C3",
+    "547": "[*:1]C1C2CC3OCOC3CC2C(C2CC(OC)C(OC)C(OC)C2)C2C(=O)OCC12",
+    "548": "[*:1]C1C2CCCCC2C2CCCCC12",
+    "549": "[*:1]C1C2CCCCC2C2CCCCC2C1C1CCCCC1",
+    "550": "[*:1]C1C2OCOC3CC4OCOC5CC6OCOC7CC8OCOC1C1CC2C(CCCCC)C3CC4C(CCCCC)C5CC6C(CCCCC)C7CC8C1CCCCC",
+    "551": "[*:1]C1CC(C(C)(C)C)CC(C(C)(C)C)N1",
+    "552": "[*:1]C1CC(C(C)(C)C)CC2C1OC1C(C(N3CCCN3)N3CCCN3)CC(C(C)(C)C)CC1C2(C)C",
+    "553": "[*:1]C1CC(C(F)(F)F)CC(C(F)(F)F)C1",
+    "554": "[*:1]C1CC(OC)CC(OC)C1",
+    "555": "[*:1]C1CC(OC)CCN1",
+    "556": "[*:1]C1CC2CCC1(C)C2(C)C",
+    "557": "[*:1]C1CCC(/N=N/C2CCCCC2)CC1",
+    "558": "[*:1]C1CCC(C#N)C2CCCCC12",
+    "559": "[*:1]C1CCC(C(=C(C2CCCCC2)C2CCCCC2)C2CCCCC2)CC1",
+    "560": "[*:1]C1CCC(C(F)(F)F)CC1",
+    "561": "[*:1]C1CCC(C(N2CCCN2)N2CCCN2)CC1",
+    "562": "[*:1]C1CCC(C(N2NC(C)CC2C)N2NC(C)CC2C)CC1",
+    "563": "[*:1]C1CCC(C)CC1C(OC)(C(F)(F)F)C(F)(F)F",
+    "564": "[*:1]C1CCC(C)CC1C(O[*:2])(C(F)(F)F)C(F)(F)F",
+    "565": "[*:1]C1CCC(C)CC1C(O[*:2])(C(F)(F)F)C(F)(F)F",
+    "566": "[*:1]C1CCC(C2CCC(SC)CC2)CC1",
+    "567": "[*:1]C1CCC(CP(=O)(OCC)OCC)CC1",
+    "568": "[*:1]C1CCC(Cl)NN1",
+    "569": "[*:1]C1CCC(N(CC)CC)CC1",
+    "570": "[*:1]C1CCC(N2C(=O)C3CCCC4CCCC(C2=O)C43)CC1",
+    "571": "[*:1]C1CCC(N2CCCC2)CC1",
+    "572": "[*:1]C1CCC(N2NC(C)C(Br)C2C)NN1",
+    "573": "[*:1]C1CCC(OC)CC1C(OC)(C(F)(F)F)C(F)(F)F",
+    "574": "[*:1]C1CCC(OCC)CC1",
+    "575": "[*:1]C1CCC(SCC2CCCCC2)CC1",
+    "576": "[*:1]C1CCC2C3CCCCC3C(C)(C)C2C1",
+    "577": "[*:1]C1CCC2C3CCCCC3C(CCCC)(CCCC)C2C1",
+    "578": "[*:1]C1CCC2CCC3CCCC4CCC1C2C34",
+    "579": "[*:1]C1CCC2CCCCC2C1C1C(NC(C)=O)CCC2CCCCC21",
+    "580": "[*:1]C1CCC2CCCCC2C1C1C2CCCCC2CC(C2CCCCC2)C1C[*:2]",
+    "581": "[*:1]C1CCC2CCCCC2C1C1C2CCCCC2CC(C2CCCCC2)C1C[*:2]",
+    "582": "[*:1]C1CCC2CCCCC2C1C1C2CCCCC2CCC1C1CC(C(F)(F)F)CC(C(F)(F)F)C1",
+    "583": "[*:1]C1CCC2CCCCC2C1C1C2CCCCC2CCC1N(C)C",
+    "584": "[*:1]C1CCC2CCCCC2C1C1C2CCCCC2CCC1N1CCCC1",
+    "585": "[*:1]C1CCCC(C(=O)OC)C1",
+    "586": "[*:1]C1CCCC(C)C1C1C(C)CCCC1N(C)C",
+    "587": "[*:1]C1CCCC(C)C1C1C(C)CCCC1OC",
+    "588": "[*:1]C1CCCC(C)N1",
+    "589": "[*:1]C1CCCC(CP(=O)(C2CCCCC2)C2CCCCC2)C1",
+    "590": "[*:1]C1CCCC(N2CCCN2)N1",
+    "591": "[*:1]C1CCCC(N2CCNC2)N1",
+    "592": "[*:1]C1CCCC(OC(C)(C)C)N1",
+    "593": "[*:1]C1CCCC(OC)C1C1C(NC(C)=O)CCCC1OC",
+    "594": "[*:1]C1CCCC(OC)N1",
+    "595": "[*:1]C1CCCC([Si](C)(C)C)N1",
+    "596": "[*:1]C1CCCC1",
+    "597": "[*:1]C1CCCC2C3CCCCC3C12",
+    "598": "[*:1]C1CCCC2C3CCCCC3OC12",
+    "599": "[*:1]C1CCCC2C3CCCCC3SC12",
+    "600": "[*:1]C1CCCC2CCCCC12",
+    "601": "[*:1]C1CCCCC1/N=C/C1CCCCC1",
+    "602": "[*:1]C1CCCCC1C(N1NC(C)CC1C)N1NC(C)CC1C",
+    "603": "[*:1]C1CCCCC1C1=NC(C2CCCCC2)CO1",
+    "604": "[*:1]C1CCCCC1C1CCCCC1N1C(=O)N(C)C2CCCCC21",
+    "605": "[*:1]C1CCCCC1C=C[*:2]",
+    "606": "[*:1]C1CCCCC1C=C[*:2]",
+    "607": "[*:1]C1CCCCC1CC([*:2])(C)C",
+    "608": "[*:1]C1CCCCC1CC([*:2])(C)C",
+    "609": "[*:1]C1CCCCC1CC([*:2])C1CCCCC1",
+    "610": "[*:1]C1CCCCC1CC([*:2])C1CCCCC1",
+    "611": "[*:1]C1CCCCC1CN(C)C",
+    "612": "[*:1]C1CCCCC1C[C@H]([*:2])C(O[Si](C)(C)C)(C1CCCCC1)C1CCCCC1",
+    "613": "[*:1]C1CCCCC1C[C@H]([*:2])C(O[Si](C)(C)C)(C1CCCCC1)C1CCCCC1",
+    "614": "[*:1]C1CCCCC1Cl",
+    "615": "[*:1]C1CCCCC1N1CCOCC1",
+    "616": "[*:1]C1CCCCC1N1NC(C)CC1C",
+    "617": "[*:1]C1CCCCC1N=[N+]=[N-]",
+    "618": "[*:1]C1CCCCC1NC(C)=O",
+    "619": "[*:1]C1CCCCC1OC(=O)C(C)(C)C",
+    "620": "[*:1]C1CCCCC1OC(=O)C(C)C",
+    "621": "[*:1]C1CCCCC1OC(C)=O",
+    "622": "[*:1]C1CCCCC1OC(C)C",
+    "623": "[*:1]C1CCCCC1OC1CCCCC1",
+    "624": "[*:1]C1CCCCC1OCCOCCOC",
+    "625": "[*:1]C1CCNC(N(C)C)N1",
+    "626": "[*:1]C1CCNC(N(CC)CC)N1",
+    "627": "[*:1]C1CN(CC2CCCCC2)NN1",
+    "628": "[*:1]C1CN(CCOCCOCCOC)NN1",
+    "629": "[*:1]C1CNCCN1",
+    "630": "[*:1]C1NC(C2CCCCC2)NC(C2CCC(OC)CC2)N1",
+    "631": "[*:1]C1NC(OC)NC(OC)N1",
+    "632": "[*:1]C1NC2CCCCC2C2CCCCC12",
+    "633": "[*:1]C1NC2CCCCC2N1C",
+    "634": "[*:1]C1NC2CCCCC2O1",
+    "635": "[*:1]C1NCCN1C1NCCN1[*:2]",
+    "636": "[*:1]C1NCCN1C1NCCN1[*:2]",
+    "637": "[*:1]C1OC(CO)C(O)C1O",
+    "638": "[*:1]C1OC(COC(C)=O)C(OC(C)=O)C1OC(C)=O",
+    "639": "[*:1]C1[C@@H](C(C)C)CCC[C@H]1C(C)C",
+    "640": "[*:1]C=C(C=C([*:2])F)C(C)(C)C",
+    "641": "[*:1]C=C(C=C([*:2])F)C(C)(C)C",
+    "642": "[*:1]C=C1CCCCC1=C([*:2])C1C(C)CC(C)CC1C",
+    "643": "[*:1]C=C1CCCCC1=C([*:2])C1C(C)CC(C)CC1C",
+    "644": "[*:1]C=C1CCCCC1=C([*:2])C1C(C)CCC2CCCCC21",
+    "645": "[*:1]C=C1CCCCC1=C([*:2])C1C(C)CCC2CCCCC21",
+    "646": "[*:1]C=C1CCCCC1=C([*:2])C1C2CCCCC2CCC1C1CCCCC1",
+    "647": "[*:1]C=C1CCCCC1=C([*:2])C1C2CCCCC2CCC1C1CCCCC1",
+    "648": "[*:1]C=CC=C([*:2])C1CC(C(F)(F)F)CC(C(F)(F)F)C1",
+    "649": "[*:1]C=CC=C([*:2])C1CC(C(F)(F)F)CC(C(F)(F)F)C1",
+    "650": "[*:1]C=CC=C([*:2])C1CC(OC)CC(OC)C1",
+    "651": "[*:1]C=CC=C([*:2])C1CC(OC)CC(OC)C1",
+    "652": "[*:1]C=CC=C([*:2])C1CCC(F)CC1",
+    "653": "[*:1]C=CC=C([*:2])C1CCC(F)CC1",
+    "654": "[*:1]CC#C[Si](C)(C)C",
+    "655": "[*:1]CC(=O)C1CCC(Cl)CC1",
+    "656": "[*:1]CC(=O)C1CCC(F)CC1",
+    "657": "[*:1]CC(=O)C1CCC([N+](=O)[O-])CC1",
+    "658": "[*:1]CC(=O)NC(CC1CCCCC1)C(=O)OC",
+    "659": "[*:1]CC(=O)NC1C(C)CC(C)CC1C",
+    "660": "[*:1]CC(=O)OC(C)(C)C",
+    "661": "[*:1]CC(=O)OCC=C",
+    "662": "[*:1]CC(C(C)C)N(CC1CCCCC1)CC1CCCCC1",
+    "663": "[*:1]CC(C)(C)C1CCCC(C(C)C)C1[*:2]",
+    "664": "[*:1]CC(C)(C)C1CCCC(C(C)C)C1[*:2]",
+    "665": "[*:1]CC(C)(C)OC",
+    "666": "[*:1]CC(CC(C)C)N(CC1CCCCC1)CC1CCCCC1",
+    "667": "[*:1]CC(NC(C)=O)C(=O)OCCCC",
+    "668": "[*:1]CC(NS(=O)(=O)C(F)(F)F)C(C)C",
+    "669": "[*:1]CC(O)C1CCCCC1",
+    "670": "[*:1]CC(O)CCCCCCCCCCCCCC",
+    "671": "[*:1]CC(OC)C1CCCCC1",
+    "672": "[*:1]CC(OCC1CCC(Cl)CC1)C1CCC(Cl)CC1Cl",
+    "673": "[*:1]CC(SC1CCCCC1)C(C)C",
+    "674": "[*:1]CC1=NC(C(C)(C)C)CO1",
+    "675": "[*:1]CC1C(Br)C(Br)C(Br)N1C1CCCCC1",
+    "676": "[*:1]CC1C(C2CCCCC2)CC2CCCCC2C1C1C2CCCCC2CC(C2CCCCC2)C1C[*:2]",
+    "677": "[*:1]CC1C(C2CCCCC2)CC2CCCCC2C1C1C2CCCCC2CCC1[*:2]",
+    "678": "[*:1]CC1C(C2CCCCC2)CC2CCCCC2C1C1C2CCCCC2CCC1[*:2]",
+    "679": "[*:1]CC1C(F)C(F)C(C(F)(F)F)C(F)C1F",
+    "680": "[*:1]CC1C(F)CCCC1Br",
+    "681": "[*:1]CC1C(F)CCCC1Cl",
+    "682": "[*:1]CC1C2CCCCC2C(Br)C2CCCCC21",
+    "683": "[*:1]CC1CC(=O)OC2C3CCCCC3CCC12",
+    "684": "[*:1]CC1CC(=O)OC2CCC(C(C)(C)C)CC12",
+    "685": "[*:1]CC1CC(=O)OC2CCC(C(C)C)CC12",
+    "686": "[*:1]CC1CC(=O)OC2CCC(Cl)CC12",
+    "687": "[*:1]CC1CC(=O)OC2CCC(OCC)CC12",
+    "688": "[*:1]CC1CC(C(C)(C)C)CC(C(C)(C)C)C1/N=C/C1CCCCC1",
+    "689": "[*:1]CC1CC(C(C)(C)C)CC(C(C)(C)C)C1Br",
+    "690": "[*:1]CC1CC([N+](=O)[O-])CCN1",
+    "691": "[*:1]CC1CC2CCCCC2O1",
+    "692": "[*:1]CC1CC2CCCCC2S1",
+    "693": "[*:1]CC1CCC(/N=N/C2CCCCC2)CC1",
+    "694": "[*:1]CC1CCC(C(=O)OC2C(F)C(F)C(F)C(F)C2F)CC1",
+    "695": "[*:1]CC1CCC(C(C)=O)CC1",
+    "696": "[*:1]CC1CCC(C(C)C)CC1",
+    "697": "[*:1]CC1CCC(C2CCCCC2)CC1",
+    "698": "[*:1]CC1CCC(C2CCCCN2)NC1",
+    "699": "[*:1]CC1CCC(C=O)CC1",
+    "700": "[*:1]CC1CCC(F)CC1Cl",
+    "701": "[*:1]CC1CCC(O)C(/C=N/C2C(C(C)C)CCCC2C(C)C)C1",
+    "702": "[*:1]CC1CCC1",
+    "703": "[*:1]CC1CCC2CC1C2(C)C",
+    "704": "[*:1]CC1CCC2CCC(Cl)NC2N1",
+    "705": "[*:1]CC1CCCC(/C(C)=N/C2C(C)CC(C)CC2C)N1",
+    "706": "[*:1]CC1CCCC(C2CCCCN2)N1",
+    "707": "[*:1]CC1CCCC(CN2C(Cl)NC3CCCCC32)C1",
+    "708": "[*:1]CC1CCCC(COC)N1",
+    "709": "[*:1]CC1CCCCC1C(F)(F)F",
+    "710": "[*:1]CC1CCCCC1Cl",
+    "711": "[*:1]CC1CCCCC1F",
+    "712": "[*:1]CC1CCCCC1N(C)C",
+    "713": "[*:1]CC1CCCCC1P(=O)(C1CCCCC1)C1CCCCC1",
+    "714": "[*:1]CC1CCCCC1P(C1CCCCC1)C1CCCCC1",
+    "715": "[*:1]CC1CCCCC1SC(C)C",
+    "716": "[*:1]CC1CCCN1C1CCCCC1",
+    "717": "[*:1]CC1CCCNC1",
+    "718": "[*:1]CC1CN(C2CCC([N+](=O)[O-])CC2)NN1",
+    "719": "[*:1]CC1NC2CCCCC2N1CC",
+    "720": "[*:1]CC1NCC(C)C(OC)C1C",
+    "721": "[*:1]CC=CCC[*:2]",
+    "722": "[*:1]CC=CCC[*:2]",
+    "723": "[*:1]CC=CC[*:2]",
+    "724": "[*:1]CCBr",
+    "725": "[*:1]CCC#C",
+    "726": "[*:1]CCC(=O)O",
+    "727": "[*:1]CCC(=O)OCC1CCCCC1",
+    "728": "[*:1]CCC(C)=C[C@@H]([*:2])C",
+    "729": "[*:1]CCC(C)=C[C@@H]([*:2])C",
+    "730": "[*:1]CCC(C)C",
+    "731": "[*:1]CCC([*:2])C1C(C(C)C)CCCC1C(C)C",
+    "732": "[*:1]CCC([*:2])C1C(C(C)C)CCCC1C(C)C",
+    "733": "[*:1]CCC([*:2])C1C(C)CC(C)CC1C",
+    "734": "[*:1]CCC([*:2])C1C(C)CC(C)CC1C",
+    "735": "[*:1]CCC1=CCC2C(C)CCC(C)C12",
+    "736": "[*:1]CCC1=CCC2CCCCC12",
+    "737": "[*:1]CCC1CCC([N+](=O)[O-])CC1",
+    "738": "[*:1]CCC1CCCC(C(C)C)C1[*:2]",
+    "739": "[*:1]CCC1CCCC(C(C)C)C1[*:2]",
+    "740": "[*:1]CCC1CCCC(C)C1[*:2]",
+    "741": "[*:1]CCC1CCCC(C)C1[*:2]",
+    "742": "[*:1]CCC1CCCCN1",
+    "743": "[*:1]CCC=C",
+    "744": "[*:1]CCCC#C",
+    "745": "[*:1]CCCC(=O)OC",
+    "746": "[*:1]CCCCCCCCCCCCCCCC",
+    "747": "[*:1]CCCCCCO",
+    "748": "[*:1]CCCCOC1CC(O)C2C(=O)CC(C3CCCCC3)OC2C1",
+    "749": "[*:1]CCCCOC1CCCCC1",
+    "750": "[*:1]CCCNC1=C(Cl)C(=O)C2CCCCC2C1=O",
+    "751": "[*:1]CCCOC(C)=O",
+    "752": "[*:1]CCCOC1CC(O)C2C(=O)CC(C3CCCCC3)OC2C1",
+    "753": "[*:1]CCCOC1OC2OC3(C)CCC4C(C)CCC(C1C)C24OO3",
+    "754": "[*:1]CCCP(=O)(C1CCCCC1)C1CCCCC1",
+    "755": "[*:1]CCCS(=O)(=O)O",
+    "756": "[*:1]CCCSC#N",
+    "757": "[*:1]CCC[Si](OCC)(OCC)OCC",
+    "758": "[*:1]CCN(C)/C(=N/C(C)C)NC(C)C",
+    "759": "[*:1]CCN1CC(C2CCC([N+](=O)[O-])CC2)NN1",
+    "760": "[*:1]CCN1CCCC1",
+    "761": "[*:1]CCN1CCCCC1",
+    "762": "[*:1]CCN=C(C1CCCCC1)C1CCCCC1",
+    "763": "[*:1]CCNC(=O)C(C)(C)NC(=O)C(C)(C)NC(=O)C(C)(C)NC(=O)C(C)(C)N=[N+]=[N-]",
+    "764": "[*:1]CCNC(=O)C1CCC(OC)CC1",
+    "765": "[*:1]CCNC(=O)C1CCC([N+](=O)[O-])CC1",
+    "766": "[*:1]CCNC(=O)C1CCCC([N+](=O)[O-])C1",
+    "767": "[*:1]CCNC(=O)C1CCCCC1",
+    "768": "[*:1]CCNC1C(C)CC(C)CC1C",
+    "769": "[*:1]CCNC1CCC2C(=O)N(CCC)C(=O)C3CCCC1C32",
+    "770": "[*:1]CCOC(=O)OCC1CCC(C)CC1",
+    "771": "[*:1]CCOC1CCCCC1OCCOCCOCCOC1CCCCC1O",
+    "772": "[*:1]CCO[Si](C)(C)C(C)(C)C",
+    "773": "[*:1]CCP(C1CCCCC1)C1CCCCC1",
+    "774": "[*:1]CCSC(C)=O",
+    "775": "[*:1]CCSC1CCC(Br)CC1",
+    "776": "[*:1]CCSC1CCC(OC)CC1",
+    "777": "[*:1]CCS[*:2]",
+    "778": "[*:1]CCS[*:2]",
+    "779": "[*:1]CC[C@@]1(C)[C@H](C[*:2])CC[C@@H]2[C@@H]1CC[C@]1(C)[C@@H]([C@H](C)CCCC(C)C)CC[C@@H]21",
+    "780": "[*:1]CC[C@@]1(C)[C@H](C[*:2])CC[C@@H]2[C@@H]1CC[C@]1(C)[C@@H]([C@H](C)CCCC(C)C)CC[C@@H]21",
+    "781": "[*:1]CC[C@H]([*:2])C(F)(C1CCCCC1)C1CCCCC1",
+    "782": "[*:1]CC[C@H]([*:2])C(F)(C1CCCCC1)C1CCCCC1",
+    "783": "[*:1]CC[C@H]([*:2])CC1CCCCC1",
+    "784": "[*:1]CC[C@H]([*:2])CC1CCCCC1",
+    "785": "[*:1]CC[C@H]([*:2])CF",
+    "786": "[*:1]CC[C@H]([*:2])CF",
+    "787": "[*:1]CN(C)C",
+    "788": "[*:1]CN1C(Cl)NC2CCCCC21",
+    "789": "[*:1]CN1CCN(C)C1=S",
+    "790": "[*:1]CN1CNC(Cl)C1Cl",
+    "791": "[*:1]CN1CNC2C1C(=O)N(C)C(=O)N2C",
+    "792": "[*:1]CN1NC(C(C)(C)C)CC1C",
+    "793": "[*:1]CO",
+    "794": "[*:1]COCC",
+    "795": "[*:1]COCCC",
+    "796": "[*:1]CP(=O)(OCC)OCC",
+    "797": "[*:1]CS(=O)C1CCCCC1",
+    "798": "[*:1]CS(C)=O",
+    "799": "[*:1]CSC",
+    "800": "[*:1]C[C@@H](C)CC[C@@H]([*:2])C(C)C",
+    "801": "[*:1]C[C@@H](C)CC[C@@H]([*:2])C(C)C",
+    "802": "[*:1]C[C@H](C)CC[C@H]([*:2])C(C)C",
+    "803": "[*:1]C[C@H](C)CC[C@H]([*:2])C(C)C",
+    "804": "[*:1]C[Se]C1CCCCC1",
+    "805": "[*:1]F",
+    "806": "[*:1]N(C(C)=O)C(C)(C)C",
+    "807": "[*:1]N(C(C)C)C(C)C",
+    "808": "[*:1]N(C)C(=O)N([*:2])C",
+    "809": "[*:1]N(C)C1CCCCC1",
+    "810": "[*:1]N(C1CCCCC1)C1CCCCC1",
+    "811": "[*:1]N(CC1CCCCC1)CN([*:2])CC1CCCCC1",
+    "812": "[*:1]N1[C@H](C2CCCCC2)CC[C@H]1C1CCCCC1",
+    "813": "[*:1]N=CC1CCCCC1[*:2]",
+    "814": "[*:1]N=CC1CCCCC1[*:2]",
+    "815": "[*:1]NC(C)C",
+    "816": "[*:1]NC1C(C(C)C)CCCC1C(C)C",
+    "817": "[*:1]NC1C2CC(C(C)(C)C)CC3CCC4CC(C(C)(C)C)CC(C4C32)C1N[*:2]",
+    "818": "[*:1]NC1C2CCCC3CCC4CCCC(C4C32)C1N[*:2]",
+    "819": "[*:1]NC1C2CCCC3CCCC(C32)C1N[*:2]",
+    "820": "[*:1]NC1C2CCCCC2C2CCCCC2C1N[*:2]",
+    "821": "[*:1]NSN[*:2]",
+    "822": "[*:1]O",
+    "823": "[*:1]OC(=O)C(C)(C)C",
+    "824": "[*:1]OC12CC3CC(CC(C3)C1)C2",
+    "825": "[*:1]OCC1([*:2])CC(C)CCC1C(C)C",
+    "826": "[*:1]OCC1([*:2])CC(C)CCC1C(C)C",
+    "827": "[*:1]OCC1([*:2])CCCCCC1",
+    "828": "[*:1]OCC1([*:2])CCCCCC1",
+    "829": "[*:1]OCC1CCC2CCC3CCCC4CCC1C2C34",
+    "830": "[*:1]OC[C@@H]([*:2])C(C)(C)C",
+    "831": "[*:1]OC[C@@H]([*:2])C(C)(C)C",
+    "832": "[*:1]OC[C@]1([*:2])C[C@H](C)CC[C@H]1C(C)C",
+    "833": "[*:1]OC[C@]1([*:2])C[C@H](C)CC[C@H]1C(C)C",
+    "834": "[*:1]OP(=O)(C1CCCCC1)C1CCCCC1",
+    "835": "[*:1]P(C1C(C)CC(C)CC1C)C(C1CCCCC1)C1CCCCC1",
+    "836": "[*:1]SC",
+    "837": "[*:1]SC=C([*:2])C",
+    "838": "[*:1]SC=C([*:2])C",
+    "839": "[*:1]SCC[*:2]",
+    "840": "[*:1]SCC[*:2]",
+    "841": "[*:1][BH2-][N+]1CCN(C(C)(C)C)C1",
+    "842": "[*:1][C@@H](C)C1CCCCC1",
+    "843": "[*:1][C@@H]1[C@@H](C(C)C)CCC[C@H]1C(C)C",
+    "844": "[*:1][C@@]1(CO[*:2])C[C@H](C)CC[C@H]1C(C)C",
+    "845": "[*:1][C@@]1(CO[*:2])C[C@H](C)CC[C@H]1C(C)C",
+    "846": "[*:1][C@H](CC1CC(CCCC)NC(C2CCCCC2)N1)[C@@H](C)CC",
+    "847": "[*:1][C@H]1CCCC[C@@H]1O",
+    "848": "[*:1][C@H]1COC(C)(C)O[C@H]1C1CCCCC1",
+    "849": "[*:1][Si](C)(C)C",
+    "850": "[*:1][Si](CC)(CC)CC",
+    "851": "[*:1][Si](Cl)(C1CCCCC1)C1CCCCC1",
+    "852": "[*:1][Si](OCC)(OCC)OCC"
+  },
+  "block_r": {
+    "0": [
+      1
+    ],
+    "1": [
+      1
+    ],
+    "2": [
+      1
+    ],
+    "3": [
+      1
+    ],
+    "4": [
+      1
+    ],
+    "5": [
+      1
+    ],
+    "6": [
+      1
+    ],
+    "7": [
+      1
+    ],
+    "8": [
+      1
+    ],
+    "9": [
+      1
+    ],
+    "10": [
+      1
+    ],
+    "11": [
+      1
+    ],
+    "12": [
+      1,
+      2
+    ],
+    "13": [
+      1,
+      2
+    ],
+    "14": [
+      1
+    ],
+    "15": [
+      1
+    ],
+    "16": [
+      1
+    ],
+    "17": [
+      1
+    ],
+    "18": [
+      1
+    ],
+    "19": [
+      1
+    ],
+    "20": [
+      1
+    ],
+    "21": [
+      1
+    ],
+    "22": [
+      1
+    ],
+    "23": [
+      1
+    ],
+    "24": [
+      1
+    ],
+    "25": [
+      1
+    ],
+    "26": [
+      1,
+      2
+    ],
+    "27": [
+      1
+    ],
+    "28": [
+      1
+    ],
+    "29": [
+      1
+    ],
+    "30": [
+      1
+    ],
+    "31": [
+      1
+    ],
+    "32": [
+      1
+    ],
+    "33": [
+      1
+    ],
+    "34": [
+      1
+    ],
+    "35": [
+      1
+    ],
+    "36": [
+      1
+    ],
+    "37": [
+      1
+    ],
+    "38": [
+      1
+    ],
+    "39": [
+      1
+    ],
+    "40": [
+      1
+    ],
+    "41": [
+      1
+    ],
+    "42": [
+      1
+    ],
+    "43": [
+      1
+    ],
+    "44": [
+      1
+    ],
+    "45": [
+      1
+    ],
+    "46": [
+      1
+    ],
+    "47": [
+      1
+    ],
+    "48": [
+      1
+    ],
+    "49": [
+      1
+    ],
+    "50": [
+      1
+    ],
+    "51": [
+      1
+    ],
+    "52": [
+      1
+    ],
+    "53": [
+      1
+    ],
+    "54": [
+      1
+    ],
+    "55": [
+      1
+    ],
+    "56": [
+      1
+    ],
+    "57": [
+      1
+    ],
+    "58": [
+      1
+    ],
+    "59": [
+      1
+    ],
+    "60": [
+      1
+    ],
+    "61": [
+      1
+    ],
+    "62": [
+      1
+    ],
+    "63": [
+      1
+    ],
+    "64": [
+      1
+    ],
+    "65": [
+      1
+    ],
+    "66": [
+      1
+    ],
+    "67": [
+      1
+    ],
+    "68": [
+      1
+    ],
+    "69": [
+      1
+    ],
+    "70": [
+      1
+    ],
+    "71": [
+      1
+    ],
+    "72": [
+      1
+    ],
+    "73": [
+      1
+    ],
+    "74": [
+      1
+    ],
+    "75": [
+      1
+    ],
+    "76": [
+      1
+    ],
+    "77": [
+      1
+    ],
+    "78": [
+      1
+    ],
+    "79": [
+      1
+    ],
+    "80": [
+      1
+    ],
+    "81": [
+      1
+    ],
+    "82": [
+      1
+    ],
+    "83": [
+      1
+    ],
+    "84": [
+      1
+    ],
+    "85": [
+      1
+    ],
+    "86": [
+      1
+    ],
+    "87": [
+      1
+    ],
+    "88": [
+      1
+    ],
+    "89": [
+      1
+    ],
+    "90": [
+      1
+    ],
+    "91": [
+      1
+    ],
+    "92": [
+      1
+    ],
+    "93": [
+      1
+    ],
+    "94": [
+      1
+    ],
+    "95": [
+      1
+    ],
+    "96": [
+      1
+    ],
+    "97": [
+      1,
+      2
+    ],
+    "98": [
+      2,
+      1
+    ],
+    "99": [
+      1,
+      2
+    ],
+    "100": [
+      2,
+      1
+    ],
+    "101": [
+      1
+    ],
+    "102": [
+      1
+    ],
+    "103": [
+      1
+    ],
+    "104": [
+      1
+    ],
+    "105": [
+      1
+    ],
+    "106": [
+      1
+    ],
+    "107": [
+      1
+    ],
+    "108": [
+      1,
+      2
+    ],
+    "109": [
+      1
+    ],
+    "110": [
+      1
+    ],
+    "111": [
+      1
+    ],
+    "112": [
+      1
+    ],
+    "113": [
+      1,
+      2
+    ],
+    "114": [
+      1
+    ],
+    "115": [
+      1
+    ],
+    "116": [
+      1,
+      2
+    ],
+    "117": [
+      2,
+      1
+    ],
+    "118": [
+      1,
+      2
+    ],
+    "119": [
+      1
+    ],
+    "120": [
+      1
+    ],
+    "121": [
+      1
+    ],
+    "122": [
+      1
+    ],
+    "123": [
+      1
+    ],
+    "124": [
+      1
+    ],
+    "125": [
+      1
+    ],
+    "126": [
+      1
+    ],
+    "127": [
+      1
+    ],
+    "128": [
+      1
+    ],
+    "129": [
+      1
+    ],
+    "130": [
+      1
+    ],
+    "131": [
+      1
+    ],
+    "132": [
+      1
+    ],
+    "133": [
+      1
+    ],
+    "134": [
+      1
+    ],
+    "135": [
+      1
+    ],
+    "136": [
+      1
+    ],
+    "137": [
+      1
+    ],
+    "138": [
+      1
+    ],
+    "139": [
+      1
+    ],
+    "140": [
+      1
+    ],
+    "141": [
+      1
+    ],
+    "142": [
+      1
+    ],
+    "143": [
+      1
+    ],
+    "144": [
+      1
+    ],
+    "145": [
+      1
+    ],
+    "146": [
+      1
+    ],
+    "147": [
+      1
+    ],
+    "148": [
+      1
+    ],
+    "149": [
+      1
+    ],
+    "150": [
+      1
+    ],
+    "151": [
+      1
+    ],
+    "152": [
+      1
+    ],
+    "153": [
+      1
+    ],
+    "154": [
+      1
+    ],
+    "155": [
+      1
+    ],
+    "156": [
+      1
+    ],
+    "157": [
+      1
+    ],
+    "158": [
+      1,
+      2
+    ],
+    "159": [
+      1
+    ],
+    "160": [
+      1
+    ],
+    "161": [
+      1
+    ],
+    "162": [
+      1
+    ],
+    "163": [
+      1
+    ],
+    "164": [
+      1
+    ],
+    "165": [
+      1
+    ],
+    "166": [
+      1
+    ],
+    "167": [
+      1
+    ],
+    "168": [
+      1
+    ],
+    "169": [
+      1
+    ],
+    "170": [
+      1,
+      2
+    ],
+    "171": [
+      2,
+      1
+    ],
+    "172": [
+      1
+    ],
+    "173": [
+      1
+    ],
+    "174": [
+      1
+    ],
+    "175": [
+      1
+    ],
+    "176": [
+      1
+    ],
+    "177": [
+      1
+    ],
+    "178": [
+      1
+    ],
+    "179": [
+      1
+    ],
+    "180": [
+      1
+    ],
+    "181": [
+      1,
+      2
+    ],
+    "182": [
+      1,
+      2
+    ],
+    "183": [
+      2,
+      1
+    ],
+    "184": [
+      1
+    ],
+    "185": [
+      1,
+      2
+    ],
+    "186": [
+      1
+    ],
+    "187": [
+      1
+    ],
+    "188": [
+      1
+    ],
+    "189": [
+      1
+    ],
+    "190": [
+      1
+    ],
+    "191": [
+      1
+    ],
+    "192": [
+      1
+    ],
+    "193": [
+      1,
+      2
+    ],
+    "194": [
+      2,
+      1
+    ],
+    "195": [
+      1
+    ],
+    "196": [
+      1
+    ],
+    "197": [
+      1,
+      2
+    ],
+    "198": [
+      2,
+      1
+    ],
+    "199": [
+      1
+    ],
+    "200": [
+      1
+    ],
+    "201": [
+      1,
+      2
+    ],
+    "202": [
+      2,
+      1
+    ],
+    "203": [
+      1
+    ],
+    "204": [
+      1
+    ],
+    "205": [
+      1
+    ],
+    "206": [
+      1
+    ],
+    "207": [
+      1
+    ],
+    "208": [
+      1
+    ],
+    "209": [
+      1
+    ],
+    "210": [
+      1
+    ],
+    "211": [
+      1
+    ],
+    "212": [
+      1
+    ],
+    "213": [
+      1
+    ],
+    "214": [
+      1
+    ],
+    "215": [
+      1
+    ],
+    "216": [
+      1
+    ],
+    "217": [
+      1
+    ],
+    "218": [
+      1
+    ],
+    "219": [
+      1
+    ],
+    "220": [
+      1
+    ],
+    "221": [
+      1
+    ],
+    "222": [
+      1
+    ],
+    "223": [
+      1
+    ],
+    "224": [
+      1
+    ],
+    "225": [
+      1
+    ],
+    "226": [
+      1
+    ],
+    "227": [
+      1
+    ],
+    "228": [
+      1
+    ],
+    "229": [
+      1
+    ],
+    "230": [
+      1
+    ],
+    "231": [
+      1,
+      2
+    ],
+    "232": [
+      2,
+      1
+    ],
+    "233": [
+      1
+    ],
+    "234": [
+      1
+    ],
+    "235": [
+      1
+    ],
+    "236": [
+      1,
+      2
+    ],
+    "237": [
+      2,
+      1
+    ],
+    "238": [
+      1
+    ],
+    "239": [
+      1
+    ],
+    "240": [
+      1
+    ],
+    "241": [
+      1
+    ],
+    "242": [
+      1
+    ],
+    "243": [
+      1
+    ],
+    "244": [
+      1,
+      2
+    ],
+    "245": [
+      2,
+      1
+    ],
+    "246": [
+      1,
+      2
+    ],
+    "247": [
+      2,
+      1
+    ],
+    "248": [
+      1,
+      2
+    ],
+    "249": [
+      2,
+      1
+    ],
+    "250": [
+      1
+    ],
+    "251": [
+      1
+    ],
+    "252": [
+      1
+    ],
+    "253": [
+      1,
+      2
+    ],
+    "254": [
+      2,
+      1
+    ],
+    "255": [
+      1
+    ],
+    "256": [
+      1
+    ],
+    "257": [
+      1
+    ],
+    "258": [
+      1
+    ],
+    "259": [
+      1
+    ],
+    "260": [
+      1
+    ],
+    "261": [
+      1
+    ],
+    "262": [
+      1
+    ],
+    "263": [
+      1
+    ],
+    "264": [
+      1,
+      2
+    ],
+    "265": [
+      2,
+      1
+    ],
+    "266": [
+      1
+    ],
+    "267": [
+      1
+    ],
+    "268": [
+      1
+    ],
+    "269": [
+      1
+    ],
+    "270": [
+      1,
+      2
+    ],
+    "271": [
+      2,
+      1
+    ],
+    "272": [
+      1,
+      2
+    ],
+    "273": [
+      2,
+      1
+    ],
+    "274": [
+      1,
+      2
+    ],
+    "275": [
+      2,
+      1
+    ],
+    "276": [
+      1
+    ],
+    "277": [
+      1
+    ],
+    "278": [
+      1
+    ],
+    "279": [
+      1,
+      2
+    ],
+    "280": [
+      2,
+      1
+    ],
+    "281": [
+      1
+    ],
+    "282": [
+      1
+    ],
+    "283": [
+      1
+    ],
+    "284": [
+      1
+    ],
+    "285": [
+      1
+    ],
+    "286": [
+      1
+    ],
+    "287": [
+      1
+    ],
+    "288": [
+      1
+    ],
+    "289": [
+      1
+    ],
+    "290": [
+      1
+    ],
+    "291": [
+      1,
+      2
+    ],
+    "292": [
+      2,
+      1
+    ],
+    "293": [
+      1
+    ],
+    "294": [
+      1
+    ],
+    "295": [
+      1
+    ],
+    "296": [
+      1
+    ],
+    "297": [
+      1
+    ],
+    "298": [
+      1
+    ],
+    "299": [
+      1
+    ],
+    "300": [
+      1
+    ],
+    "301": [
+      1
+    ],
+    "302": [
+      1
+    ],
+    "303": [
+      1
+    ],
+    "304": [
+      1
+    ],
+    "305": [
+      1
+    ],
+    "306": [
+      1
+    ],
+    "307": [
+      1
+    ],
+    "308": [
+      1
+    ],
+    "309": [
+      1
+    ],
+    "310": [
+      1,
+      2
+    ],
+    "311": [
+      1
+    ],
+    "312": [
+      1
+    ],
+    "313": [
+      1
+    ],
+    "314": [
+      1
+    ],
+    "315": [
+      1
+    ],
+    "316": [
+      1
+    ],
+    "317": [
+      1
+    ],
+    "318": [
+      1
+    ],
+    "319": [
+      1
+    ],
+    "320": [
+      1
+    ],
+    "321": [
+      1
+    ],
+    "322": [
+      1,
+      2
+    ],
+    "323": [
+      2,
+      1
+    ],
+    "324": [
+      1
+    ],
+    "325": [
+      1
+    ],
+    "326": [
+      1
+    ],
+    "327": [
+      1,
+      2
+    ],
+    "328": [
+      1
+    ],
+    "329": [
+      1
+    ],
+    "330": [
+      1
+    ],
+    "331": [
+      1
+    ],
+    "332": [
+      1
+    ],
+    "333": [
+      1
+    ],
+    "334": [
+      1
+    ],
+    "335": [
+      1
+    ],
+    "336": [
+      1
+    ],
+    "337": [
+      1
+    ],
+    "338": [
+      1
+    ],
+    "339": [
+      1
+    ],
+    "340": [
+      1
+    ],
+    "341": [
+      1
+    ],
+    "342": [
+      1
+    ],
+    "343": [
+      1
+    ],
+    "344": [
+      1
+    ],
+    "345": [
+      1
+    ],
+    "346": [
+      1
+    ],
+    "347": [
+      1
+    ],
+    "348": [
+      1
+    ],
+    "349": [
+      1
+    ],
+    "350": [
+      1
+    ],
+    "351": [
+      1
+    ],
+    "352": [
+      1
+    ],
+    "353": [
+      1
+    ],
+    "354": [
+      1
+    ],
+    "355": [
+      1
+    ],
+    "356": [
+      1
+    ],
+    "357": [
+      1
+    ],
+    "358": [
+      1
+    ],
+    "359": [
+      1
+    ],
+    "360": [
+      1
+    ],
+    "361": [
+      1
+    ],
+    "362": [
+      1,
+      2
+    ],
+    "363": [
+      1
+    ],
+    "364": [
+      1
+    ],
+    "365": [
+      1
+    ],
+    "366": [
+      1
+    ],
+    "367": [
+      1
+    ],
+    "368": [
+      1
+    ],
+    "369": [
+      1,
+      2
+    ],
+    "370": [
+      2,
+      1
+    ],
+    "371": [
+      1
+    ],
+    "372": [
+      1
+    ],
+    "373": [
+      1
+    ],
+    "374": [
+      1
+    ],
+    "375": [
+      1
+    ],
+    "376": [
+      1
+    ],
+    "377": [
+      1
+    ],
+    "378": [
+      1
+    ],
+    "379": [
+      1
+    ],
+    "380": [
+      1
+    ],
+    "381": [
+      1
+    ],
+    "382": [
+      1
+    ],
+    "383": [
+      1
+    ],
+    "384": [
+      1
+    ],
+    "385": [
+      1
+    ],
+    "386": [
+      1
+    ],
+    "387": [
+      1
+    ],
+    "388": [
+      1
+    ],
+    "389": [
+      1
+    ],
+    "390": [
+      1
+    ],
+    "391": [
+      1
+    ],
+    "392": [
+      1
+    ],
+    "393": [
+      1
+    ],
+    "394": [
+      1
+    ],
+    "395": [
+      1
+    ],
+    "396": [
+      1
+    ],
+    "397": [
+      1
+    ],
+    "398": [
+      1
+    ],
+    "399": [
+      1
+    ],
+    "400": [
+      1
+    ],
+    "401": [
+      1,
+      2
+    ],
+    "402": [
+      2,
+      1
+    ],
+    "403": [
+      1
+    ],
+    "404": [
+      1,
+      2
+    ],
+    "405": [
+      2,
+      1
+    ],
+    "406": [
+      1
+    ],
+    "407": [
+      1
+    ],
+    "408": [
+      1,
+      2
+    ],
+    "409": [
+      2,
+      1
+    ],
+    "410": [
+      1
+    ],
+    "411": [
+      1
+    ],
+    "412": [
+      1
+    ],
+    "413": [
+      1
+    ],
+    "414": [
+      1
+    ],
+    "415": [
+      1
+    ],
+    "416": [
+      1
+    ],
+    "417": [
+      1
+    ],
+    "418": [
+      1
+    ],
+    "419": [
+      1
+    ],
+    "420": [
+      1
+    ],
+    "421": [
+      1
+    ],
+    "422": [
+      1
+    ],
+    "423": [
+      1
+    ],
+    "424": [
+      1
+    ],
+    "425": [
+      1
+    ],
+    "426": [
+      1
+    ],
+    "427": [
+      1
+    ],
+    "428": [
+      1
+    ],
+    "429": [
+      1
+    ],
+    "430": [
+      1
+    ],
+    "431": [
+      1
+    ],
+    "432": [
+      1
+    ],
+    "433": [
+      1
+    ],
+    "434": [
+      1
+    ],
+    "435": [
+      1,
+      2
+    ],
+    "436": [
+      2,
+      1
+    ],
+    "437": [
+      1
+    ],
+    "438": [
+      1
+    ],
+    "439": [
+      1
+    ],
+    "440": [
+      1
+    ],
+    "441": [
+      1,
+      2
+    ],
+    "442": [
+      2,
+      1
+    ],
+    "443": [
+      1,
+      2
+    ],
+    "444": [
+      2,
+      1
+    ],
+    "445": [
+      1,
+      2
+    ],
+    "446": [
+      2,
+      1
+    ],
+    "447": [
+      1
+    ],
+    "448": [
+      1
+    ],
+    "449": [
+      1
+    ],
+    "450": [
+      1
+    ],
+    "451": [
+      1
+    ],
+    "452": [
+      1
+    ],
+    "453": [
+      1
+    ],
+    "454": [
+      1
+    ],
+    "455": [
+      1
+    ],
+    "456": [
+      1
+    ],
+    "457": [
+      1
+    ],
+    "458": [
+      1
+    ],
+    "459": [
+      1
+    ],
+    "460": [
+      1
+    ],
+    "461": [
+      1
+    ],
+    "462": [
+      1
+    ],
+    "463": [
+      1
+    ],
+    "464": [
+      1
+    ],
+    "465": [
+      1
+    ],
+    "466": [
+      1
+    ],
+    "467": [
+      1
+    ],
+    "468": [
+      1,
+      2
+    ],
+    "469": [
+      2,
+      1
+    ],
+    "470": [
+      1,
+      2
+    ],
+    "471": [
+      2,
+      1
+    ],
+    "472": [
+      1,
+      2
+    ],
+    "473": [
+      2,
+      1
+    ],
+    "474": [
+      1,
+      2
+    ],
+    "475": [
+      2,
+      1
+    ],
+    "476": [
+      1,
+      2
+    ],
+    "477": [
+      2,
+      1
+    ],
+    "478": [
+      1,
+      2
+    ],
+    "479": [
+      2,
+      1
+    ],
+    "480": [
+      1,
+      2
+    ],
+    "481": [
+      2,
+      1
+    ],
+    "482": [
+      1,
+      2
+    ],
+    "483": [
+      2,
+      1
+    ],
+    "484": [
+      1,
+      2
+    ],
+    "485": [
+      2,
+      1
+    ],
+    "486": [
+      1,
+      2
+    ],
+    "487": [
+      2,
+      1
+    ],
+    "488": [
+      1
+    ],
+    "489": [
+      1
+    ],
+    "490": [
+      1
+    ],
+    "491": [
+      1
+    ],
+    "492": [
+      1
+    ],
+    "493": [
+      1
+    ],
+    "494": [
+      1
+    ],
+    "495": [
+      1
+    ],
+    "496": [
+      1
+    ],
+    "497": [
+      1
+    ],
+    "498": [
+      1
+    ],
+    "499": [
+      1,
+      2
+    ],
+    "500": [
+      2,
+      1
+    ],
+    "501": [
+      1
+    ],
+    "502": [
+      1,
+      2
+    ],
+    "503": [
+      2,
+      1
+    ],
+    "504": [
+      1
+    ],
+    "505": [
+      1
+    ],
+    "506": [
+      1
+    ],
+    "507": [
+      1
+    ],
+    "508": [
+      1
+    ],
+    "509": [
+      1
+    ],
+    "510": [
+      1
+    ],
+    "511": [
+      1,
+      2
+    ],
+    "512": [
+      2,
+      1
+    ],
+    "513": [
+      1,
+      2
+    ],
+    "514": [
+      2,
+      1
+    ],
+    "515": [
+      1
+    ],
+    "516": [
+      1
+    ],
+    "517": [
+      1
+    ],
+    "518": [
+      1
+    ],
+    "519": [
+      1,
+      2
+    ],
+    "520": [
+      2,
+      1
+    ],
+    "521": [
+      1,
+      2
+    ],
+    "522": [
+      1,
+      2
+    ],
+    "523": [
+      1
+    ],
+    "524": [
+      1
+    ],
+    "525": [
+      1
+    ],
+    "526": [
+      1
+    ],
+    "527": [
+      1
+    ],
+    "528": [
+      1,
+      2
+    ],
+    "529": [
+      2,
+      1
+    ],
+    "530": [
+      1
+    ],
+    "531": [
+      1
+    ],
+    "532": [
+      1
+    ],
+    "533": [
+      1
+    ],
+    "534": [
+      1,
+      2
+    ],
+    "535": [
+      2,
+      1
+    ],
+    "536": [
+      1,
+      2
+    ],
+    "537": [
+      1
+    ],
+    "538": [
+      1
+    ],
+    "539": [
+      1
+    ],
+    "540": [
+      1,
+      2
+    ],
+    "541": [
+      2,
+      1
+    ],
+    "542": [
+      1
+    ],
+    "543": [
+      1
+    ],
+    "544": [
+      1
+    ],
+    "545": [
+      1
+    ],
+    "546": [
+      1
+    ],
+    "547": [
+      1
+    ],
+    "548": [
+      1
+    ],
+    "549": [
+      1
+    ],
+    "550": [
+      1
+    ],
+    "551": [
+      1
+    ],
+    "552": [
+      1
+    ],
+    "553": [
+      1
+    ],
+    "554": [
+      1
+    ],
+    "555": [
+      1
+    ],
+    "556": [
+      1
+    ],
+    "557": [
+      1
+    ],
+    "558": [
+      1
+    ],
+    "559": [
+      1
+    ],
+    "560": [
+      1
+    ],
+    "561": [
+      1
+    ],
+    "562": [
+      1
+    ],
+    "563": [
+      1
+    ],
+    "564": [
+      1,
+      2
+    ],
+    "565": [
+      2,
+      1
+    ],
+    "566": [
+      1
+    ],
+    "567": [
+      1
+    ],
+    "568": [
+      1
+    ],
+    "569": [
+      1
+    ],
+    "570": [
+      1
+    ],
+    "571": [
+      1
+    ],
+    "572": [
+      1
+    ],
+    "573": [
+      1
+    ],
+    "574": [
+      1
+    ],
+    "575": [
+      1
+    ],
+    "576": [
+      1
+    ],
+    "577": [
+      1
+    ],
+    "578": [
+      1
+    ],
+    "579": [
+      1
+    ],
+    "580": [
+      1,
+      2
+    ],
+    "581": [
+      2,
+      1
+    ],
+    "582": [
+      1
+    ],
+    "583": [
+      1
+    ],
+    "584": [
+      1
+    ],
+    "585": [
+      1
+    ],
+    "586": [
+      1
+    ],
+    "587": [
+      1
+    ],
+    "588": [
+      1
+    ],
+    "589": [
+      1
+    ],
+    "590": [
+      1
+    ],
+    "591": [
+      1
+    ],
+    "592": [
+      1
+    ],
+    "593": [
+      1
+    ],
+    "594": [
+      1
+    ],
+    "595": [
+      1
+    ],
+    "596": [
+      1
+    ],
+    "597": [
+      1
+    ],
+    "598": [
+      1
+    ],
+    "599": [
+      1
+    ],
+    "600": [
+      1
+    ],
+    "601": [
+      1
+    ],
+    "602": [
+      1
+    ],
+    "603": [
+      1
+    ],
+    "604": [
+      1
+    ],
+    "605": [
+      1,
+      2
+    ],
+    "606": [
+      2,
+      1
+    ],
+    "607": [
+      1,
+      2
+    ],
+    "608": [
+      2,
+      1
+    ],
+    "609": [
+      1,
+      2
+    ],
+    "610": [
+      2,
+      1
+    ],
+    "611": [
+      1
+    ],
+    "612": [
+      1,
+      2
+    ],
+    "613": [
+      2,
+      1
+    ],
+    "614": [
+      1
+    ],
+    "615": [
+      1
+    ],
+    "616": [
+      1
+    ],
+    "617": [
+      1
+    ],
+    "618": [
+      1
+    ],
+    "619": [
+      1
+    ],
+    "620": [
+      1
+    ],
+    "621": [
+      1
+    ],
+    "622": [
+      1
+    ],
+    "623": [
+      1
+    ],
+    "624": [
+      1
+    ],
+    "625": [
+      1
+    ],
+    "626": [
+      1
+    ],
+    "627": [
+      1
+    ],
+    "628": [
+      1
+    ],
+    "629": [
+      1
+    ],
+    "630": [
+      1
+    ],
+    "631": [
+      1
+    ],
+    "632": [
+      1
+    ],
+    "633": [
+      1
+    ],
+    "634": [
+      1
+    ],
+    "635": [
+      1,
+      2
+    ],
+    "636": [
+      2,
+      1
+    ],
+    "637": [
+      1
+    ],
+    "638": [
+      1
+    ],
+    "639": [
+      1
+    ],
+    "640": [
+      1,
+      2
+    ],
+    "641": [
+      2,
+      1
+    ],
+    "642": [
+      1,
+      2
+    ],
+    "643": [
+      2,
+      1
+    ],
+    "644": [
+      1,
+      2
+    ],
+    "645": [
+      2,
+      1
+    ],
+    "646": [
+      1,
+      2
+    ],
+    "647": [
+      2,
+      1
+    ],
+    "648": [
+      1,
+      2
+    ],
+    "649": [
+      2,
+      1
+    ],
+    "650": [
+      1,
+      2
+    ],
+    "651": [
+      2,
+      1
+    ],
+    "652": [
+      1,
+      2
+    ],
+    "653": [
+      2,
+      1
+    ],
+    "654": [
+      1
+    ],
+    "655": [
+      1
+    ],
+    "656": [
+      1
+    ],
+    "657": [
+      1
+    ],
+    "658": [
+      1
+    ],
+    "659": [
+      1
+    ],
+    "660": [
+      1
+    ],
+    "661": [
+      1
+    ],
+    "662": [
+      1
+    ],
+    "663": [
+      1,
+      2
+    ],
+    "664": [
+      2,
+      1
+    ],
+    "665": [
+      1
+    ],
+    "666": [
+      1
+    ],
+    "667": [
+      1
+    ],
+    "668": [
+      1
+    ],
+    "669": [
+      1
+    ],
+    "670": [
+      1
+    ],
+    "671": [
+      1
+    ],
+    "672": [
+      1
+    ],
+    "673": [
+      1
+    ],
+    "674": [
+      1
+    ],
+    "675": [
+      1
+    ],
+    "676": [
+      1,
+      2
+    ],
+    "677": [
+      1,
+      2
+    ],
+    "678": [
+      2,
+      1
+    ],
+    "679": [
+      1
+    ],
+    "680": [
+      1
+    ],
+    "681": [
+      1
+    ],
+    "682": [
+      1
+    ],
+    "683": [
+      1
+    ],
+    "684": [
+      1
+    ],
+    "685": [
+      1
+    ],
+    "686": [
+      1
+    ],
+    "687": [
+      1
+    ],
+    "688": [
+      1
+    ],
+    "689": [
+      1
+    ],
+    "690": [
+      1
+    ],
+    "691": [
+      1
+    ],
+    "692": [
+      1
+    ],
+    "693": [
+      1
+    ],
+    "694": [
+      1
+    ],
+    "695": [
+      1
+    ],
+    "696": [
+      1
+    ],
+    "697": [
+      1
+    ],
+    "698": [
+      1
+    ],
+    "699": [
+      1
+    ],
+    "700": [
+      1
+    ],
+    "701": [
+      1
+    ],
+    "702": [
+      1
+    ],
+    "703": [
+      1
+    ],
+    "704": [
+      1
+    ],
+    "705": [
+      1
+    ],
+    "706": [
+      1
+    ],
+    "707": [
+      1
+    ],
+    "708": [
+      1
+    ],
+    "709": [
+      1
+    ],
+    "710": [
+      1
+    ],
+    "711": [
+      1
+    ],
+    "712": [
+      1
+    ],
+    "713": [
+      1
+    ],
+    "714": [
+      1
+    ],
+    "715": [
+      1
+    ],
+    "716": [
+      1
+    ],
+    "717": [
+      1
+    ],
+    "718": [
+      1
+    ],
+    "719": [
+      1
+    ],
+    "720": [
+      1
+    ],
+    "721": [
+      1,
+      2
+    ],
+    "722": [
+      2,
+      1
+    ],
+    "723": [
+      1,
+      2
+    ],
+    "724": [
+      1
+    ],
+    "725": [
+      1
+    ],
+    "726": [
+      1
+    ],
+    "727": [
+      1
+    ],
+    "728": [
+      1,
+      2
+    ],
+    "729": [
+      2,
+      1
+    ],
+    "730": [
+      1
+    ],
+    "731": [
+      1,
+      2
+    ],
+    "732": [
+      2,
+      1
+    ],
+    "733": [
+      1,
+      2
+    ],
+    "734": [
+      2,
+      1
+    ],
+    "735": [
+      1
+    ],
+    "736": [
+      1
+    ],
+    "737": [
+      1
+    ],
+    "738": [
+      1,
+      2
+    ],
+    "739": [
+      2,
+      1
+    ],
+    "740": [
+      1,
+      2
+    ],
+    "741": [
+      2,
+      1
+    ],
+    "742": [
+      1
+    ],
+    "743": [
+      1
+    ],
+    "744": [
+      1
+    ],
+    "745": [
+      1
+    ],
+    "746": [
+      1
+    ],
+    "747": [
+      1
+    ],
+    "748": [
+      1
+    ],
+    "749": [
+      1
+    ],
+    "750": [
+      1
+    ],
+    "751": [
+      1
+    ],
+    "752": [
+      1
+    ],
+    "753": [
+      1
+    ],
+    "754": [
+      1
+    ],
+    "755": [
+      1
+    ],
+    "756": [
+      1
+    ],
+    "757": [
+      1
+    ],
+    "758": [
+      1
+    ],
+    "759": [
+      1
+    ],
+    "760": [
+      1
+    ],
+    "761": [
+      1
+    ],
+    "762": [
+      1
+    ],
+    "763": [
+      1
+    ],
+    "764": [
+      1
+    ],
+    "765": [
+      1
+    ],
+    "766": [
+      1
+    ],
+    "767": [
+      1
+    ],
+    "768": [
+      1
+    ],
+    "769": [
+      1
+    ],
+    "770": [
+      1
+    ],
+    "771": [
+      1
+    ],
+    "772": [
+      1
+    ],
+    "773": [
+      1
+    ],
+    "774": [
+      1
+    ],
+    "775": [
+      1
+    ],
+    "776": [
+      1
+    ],
+    "777": [
+      1,
+      2
+    ],
+    "778": [
+      2,
+      1
+    ],
+    "779": [
+      1,
+      2
+    ],
+    "780": [
+      2,
+      1
+    ],
+    "781": [
+      1,
+      2
+    ],
+    "782": [
+      2,
+      1
+    ],
+    "783": [
+      1,
+      2
+    ],
+    "784": [
+      2,
+      1
+    ],
+    "785": [
+      1,
+      2
+    ],
+    "786": [
+      2,
+      1
+    ],
+    "787": [
+      1
+    ],
+    "788": [
+      1
+    ],
+    "789": [
+      1
+    ],
+    "790": [
+      1
+    ],
+    "791": [
+      1
+    ],
+    "792": [
+      1
+    ],
+    "793": [
+      1
+    ],
+    "794": [
+      1
+    ],
+    "795": [
+      1
+    ],
+    "796": [
+      1
+    ],
+    "797": [
+      1
+    ],
+    "798": [
+      1
+    ],
+    "799": [
+      1
+    ],
+    "800": [
+      1,
+      2
+    ],
+    "801": [
+      2,
+      1
+    ],
+    "802": [
+      1,
+      2
+    ],
+    "803": [
+      2,
+      1
+    ],
+    "804": [
+      1
+    ],
+    "805": [
+      1
+    ],
+    "806": [
+      1
+    ],
+    "807": [
+      1
+    ],
+    "808": [
+      1,
+      2
+    ],
+    "809": [
+      1
+    ],
+    "810": [
+      1
+    ],
+    "811": [
+      1,
+      2
+    ],
+    "812": [
+      1
+    ],
+    "813": [
+      1,
+      2
+    ],
+    "814": [
+      2,
+      1
+    ],
+    "815": [
+      1
+    ],
+    "816": [
+      1
+    ],
+    "817": [
+      1,
+      2
+    ],
+    "818": [
+      1,
+      2
+    ],
+    "819": [
+      1,
+      2
+    ],
+    "820": [
+      1,
+      2
+    ],
+    "821": [
+      1,
+      2
+    ],
+    "822": [
+      1
+    ],
+    "823": [
+      1
+    ],
+    "824": [
+      1
+    ],
+    "825": [
+      1,
+      2
+    ],
+    "826": [
+      2,
+      1
+    ],
+    "827": [
+      1,
+      2
+    ],
+    "828": [
+      2,
+      1
+    ],
+    "829": [
+      1
+    ],
+    "830": [
+      1,
+      2
+    ],
+    "831": [
+      2,
+      1
+    ],
+    "832": [
+      1,
+      2
+    ],
+    "833": [
+      2,
+      1
+    ],
+    "834": [
+      1
+    ],
+    "835": [
+      1
+    ],
+    "836": [
+      1
+    ],
+    "837": [
+      1,
+      2
+    ],
+    "838": [
+      2,
+      1
+    ],
+    "839": [
+      1,
+      2
+    ],
+    "840": [
+      2,
+      1
+    ],
+    "841": [
+      1
+    ],
+    "842": [
+      1
+    ],
+    "843": [
+      1
+    ],
+    "844": [
+      1,
+      2
+    ],
+    "845": [
+      2,
+      1
+    ],
+    "846": [
+      1
+    ],
+    "847": [
+      1
+    ],
+    "848": [
+      1
+    ],
+    "849": [
+      1
+    ],
+    "850": [
+      1
+    ],
+    "851": [
+      1
+    ],
+    "852": [
+      1
+    ]
+  }
+}

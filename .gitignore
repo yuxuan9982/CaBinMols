@@ -1,0 +1,9 @@
+./results
+results/
+*.pkl.gz
+*.csv
+*.log
+*.pth
+*.pt
+*.pkl
+*results*

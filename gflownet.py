@@ -1,0 +1,727 @@
+import argparse
+import gzip
+import os
+import pdb
+import pickle
+import threading
+import time
+import warnings
+from copy import deepcopy
+
+import networkx as nx
+import numpy as np
+import torch
+import torch.nn as nn
+
+import model_block
+from mol_mdp_ext import MolMDPExtended, BlockMoleculeDataExtended
+
+from torch_geometric.graphgym.config import cfg
+from GraphGPS.recover_model import load_trained_model,process
+from torch_geometric.data import Data, Batch
+from metrics import Evaluator
+
+
+warnings.filterwarnings('ignore')
+
+tmp_dir = "/tmp/molexp"
+os.makedirs(tmp_dir, exist_ok=True)
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("--learning_rate", default=5e-4, help="Learning rate", type=float)
+parser.add_argument("--mbsize", default=4, help="Minibatch size", type=int)
+parser.add_argument("--opt_beta", default=0.9, type=float)
+parser.add_argument("--opt_beta2", default=0.999, type=float)
+parser.add_argument("--opt_epsilon", default=1e-8, type=float)
+parser.add_argument("--nemb", default=256, help="#hidden", type=int)
+parser.add_argument("--min_blocks", default=2, type=int)
+parser.add_argument("--max_blocks", default=8, type=int)
+parser.add_argument("--num_iterations", default=250000, type=int)
+parser.add_argument("--num_conv_steps", default=10, type=int)
+parser.add_argument("--log_reg_c", default=2.5e-5, type=float)
+parser.add_argument("--reward_exp", default=5, type=float)
+parser.add_argument("--reward_norm", default=4, type=float)
+parser.add_argument("--sample_prob", default=0.9, type=float)
+parser.add_argument("--R_min", default=0.1, type=float)
+parser.add_argument("--leaf_coef", default=10, type=float)
+parser.add_argument("--clip_grad", default=0, type=float)
+parser.add_argument("--clip_loss", default=0, type=float)
+parser.add_argument("--replay_mode", default='prioritized', type=str)
+parser.add_argument("--bootstrap_tau", default=0, type=float)
+parser.add_argument("--weight_decay", default=0, type=float)
+parser.add_argument("--random_action_prob", default=0.05, type=float)
+parser.add_argument("--array", default='')
+parser.add_argument("--repr_type", default='block_graph')
+parser.add_argument("--model_version", default='v4')
+parser.add_argument("--run", default=0, help="run", type=int)
+parser.add_argument("--save_path", default='results/')
+parser.add_argument("--proxy_path", default='./data/pretrained_proxy')
+parser.add_argument("--print_array_length", default=False, action='store_true')
+parser.add_argument("--progress", default='yes')
+parser.add_argument("--floatX", default='float64')
+parser.add_argument("--include_nblocks", default=False)
+parser.add_argument("--balanced_loss", default=True)
+parser.add_argument("--early_stop_reg", default=0.1, type=float)
+parser.add_argument("--initial_log_Z", default=30, type=float)
+parser.add_argument("--objective", default='fm', type=str)
+# If True this basically implements Buesing et al's TreeSample Q/SoftQLearning, samples uniformly
+# from it though, no MCTS involved
+parser.add_argument("--ignore_parents", default=False)
+
+parser.add_argument("--subtb_lambda", default=0.99, type=float)
+parser.add_argument("--cfg", default='GraphGPS/configs/GPS/a-mols.yaml', type=str)
+parser.add_argument("--ckpt", default='GraphGPS/results/models/model_best.pth', type=str)
+
+
+@torch.jit.script
+def detailed_balance_loss(P_F, P_B, F, R, traj_lengths):
+    cumul_lens = torch.cumsum(torch.cat([torch.zeros(1, device=traj_lengths.device), traj_lengths]), 0).long()
+    total_loss = torch.zeros(1, device=traj_lengths.device)
+    for ep in range(traj_lengths.shape[0]):
+        offset = cumul_lens[ep]
+        T = int(traj_lengths[ep])
+        for i in range(T):
+            # This flag is False if the endpoint flow of this trajectory is R == F(s_T)
+            flag = float(i + 1 < T)
+            acc = (F[offset + i] - F[offset + min(i + 1, T - 1)] * flag - R[ep] * (1 - flag)
+                   + P_F[offset + i] - P_B[offset + i])
+            total_loss += acc.pow(2)
+    return total_loss
+
+@torch.jit.script
+def trajectory_balance_loss(P_F, P_B, F, R, traj_lengths):
+    cumul_lens = torch.cumsum(torch.cat([torch.zeros(1, device=traj_lengths.device), traj_lengths]), 0).long()
+    total_loss = torch.zeros(1, device=traj_lengths.device)
+    for ep in range(traj_lengths.shape[0]):
+        offset = cumul_lens[ep]
+        T = int(traj_lengths[ep])
+        total_loss += (F[offset] - R[ep] + P_F[offset:offset+T].sum() - P_B[offset:offset+T].sum()).pow(2)
+    return total_loss / float(traj_lengths.shape[0])
+
+@torch.jit.script
+def tb_lambda_loss(P_F, P_B, F, R, traj_lengths, Lambda):
+    cumul_lens = torch.cumsum(torch.cat([torch.zeros(1, device=traj_lengths.device), traj_lengths]), 0).long()
+    total_loss = torch.zeros(1, device=traj_lengths.device)
+    total_Lambda = torch.zeros(1, device=traj_lengths.device)
+    for ep in range(traj_lengths.shape[0]):
+        offset = cumul_lens[ep]
+        T = int(traj_lengths[ep])
+        for i in range(T):
+            for j in range(i, T):
+                # This flag is False if the endpoint flow of this subtrajectory is R == F(s_T)
+                flag = float(j + 1 < T)
+                acc = F[offset + i] - F[offset + min(j + 1, T - 1)] * flag - R[ep] * (1 - flag)
+                for k in range(i, j + 1):
+                    acc += P_F[offset + k] - P_B[offset + k]
+                total_loss += acc.pow(2) * Lambda ** (j - i + 1)
+                total_Lambda += Lambda ** (j - i + 1)
+    return total_loss / total_Lambda
+
+class Proxy:
+    def __init__(self, cfg_file, ckpt, device):
+        self.device = device
+        self.proxy = load_trained_model(cfg_file, ckpt)
+        self.proxy.to(device)
+
+    def __call__(self, mols):
+        if isinstance(mols, str):
+            mols = [mols]
+        graphs = [process(m, self.device) for m in mols]
+        batch = Batch.from_data_list(graphs).to(self.device)
+        with torch.no_grad():
+            outputs = self.proxy(batch)
+        return outputs[0].squeeze().cpu().tolist()
+
+class Dataset:
+
+    def __init__(self, args, bpath_core, bpath_sub, device, floatX=torch.double):
+        self.test_split_rng = np.random.RandomState(142)
+        self.train_rng = np.random.RandomState(142)
+        self.train_mols = []
+        self.test_mols = []
+        self.train_mols_map = {}
+        self.mdp = MolMDPExtended(bpath_sub, bpath_core)
+        self.mdp.post_init(device, args.repr_type, include_nblocks=args.include_nblocks)
+        self.mdp.build_translation_table()
+        self._device = device
+        self.seen_molecules = set()
+        self.stop_event = threading.Event()
+        self.sampling_model = None
+        self.sampling_model_prob = 0
+        self.floatX = floatX
+        self.mdp.floatX = self.floatX
+        #######
+        # This is the "result", here a list of (reward, BlockMolDataExt, info...) tuples
+        self.sampled_mols = []
+
+        get = lambda x, d: getattr(args, x) if hasattr(args, x) else d
+        self.min_blocks = get('min_blocks', 2)
+        self.max_blocks = get('max_blocks', 10)
+        self.mdp._cue_max_blocks = self.max_blocks
+        self.replay_mode = get('replay_mode', 'dataset')
+        self.reward_exp = get('reward_exp', 1)
+        self.reward_norm = get('reward_norm', 1)
+        self.random_action_prob = get('random_action_prob', 0)
+        self.R_min = get('R_min', 1e-8)
+        self.ignore_parents = get('ignore_parents', False)
+        self.early_stop_reg = get('early_stop_reg', 0)
+        self.last_idx = 0
+        self.evaluator = Evaluator(self.reward_norm,self.reward_exp)
+
+        self.online_mols = []
+        self.max_online_mols = 1000
+
+
+    def _get(self, i, dset):
+        if ((self.sampling_model_prob > 0 and # don't sample if we don't have to
+             self.train_rng.uniform() < self.sampling_model_prob)
+            or len(dset) < 32):
+                return self._get_sample_model()
+        # Sample trajectories by walking backwards from the molecules in our dataset
+
+        # Handle possible multithreading issues when independent threads
+        # add/substract from dset:
+        while True:
+            try:
+                m = dset[i]
+            except IndexError:
+                i = self.train_rng.randint(0, len(dset))
+                continue
+            break
+        if not isinstance(m, BlockMoleculeDataExtended):
+            m = m[-1]
+        r = m.reward
+        done = 1
+        samples = []
+        # a sample is a tuple (parents(s), parent actions, reward(s), s, done)
+        # an action is (blockidx, stemidx) or (-1, x) for 'stop'
+        # so we start with the stop action, unless the molecule is already
+        # a "terminal" node (if it has no stems, no actions).
+        if len(m.stems):
+            samples.append(((m,), ((-1, 0),), r, m, done))
+            r = done = 0
+        while len(m.blocks): # and go backwards
+            parents, actions = zip(*self.mdp.parents(m))
+            samples.append((parents, actions, r, m, done))
+            r = done = 0
+            m = parents[self.train_rng.randint(len(parents))]
+        return samples
+
+    def set_sampling_model(self, model, proxy_reward, sample_prob=0.5):
+        self.sampling_model = model
+        self.sampling_model_prob = sample_prob
+        self.proxy_reward = proxy_reward
+
+    def _get_sample_model(self):
+        m = BlockMoleculeDataExtended()
+        samples = []
+        max_blocks = self.max_blocks
+        if self.early_stop_reg > 0 and np.random.uniform() < self.early_stop_reg:
+            early_stop_at = np.random.randint(self.min_blocks, self.max_blocks + 1)
+        else:
+            early_stop_at = max_blocks + 1
+        trajectory_stats = []
+        action_stats = []
+        for t in range(max_blocks):
+            s = self.mdp.mols2batch([self.mdp.mol2repr(m)])
+            s_o, m_o = self.sampling_model(s)
+            ## fix from run 330 onwards
+            if t < self.min_blocks:
+                m_o = m_o * 0 - 1000 # prevent assigning prob to stop
+                                     # when we can't stop
+            ##
+            s_oc = s_o.clone().reshape(-1)
+            if t==0:
+                with torch.no_grad():
+                    s_oc[:-self.mdp.core_num] = -1000
+            else:
+                with torch.no_grad():
+                    s_oc[-self.mdp.core_num:] = -1000
+            logits = torch.cat([m_o[:, 0].reshape(-1), s_oc])
+            #print(m_o.shape, s_o.shape, logits.shape)
+            #print(m.blockidxs, m.jbonds, m.stems)
+            cat = torch.distributions.Categorical(
+                logits=logits)
+            action = cat.sample().item()
+            #print(action)
+            if self.random_action_prob > 0 and self.train_rng.uniform() < self.random_action_prob:
+                action = self.train_rng.randint(int(t < self.min_blocks), logits.shape[0])
+            if t == early_stop_at:
+                action = 0
+            if t==0:
+                action = self.train_rng.randint(self.mdp.sub_num+1, logits.shape[0])#让每个骨架被采样的概率相等
+                while action <= self.mdp.sub_num: #one more stop action < ---- <=
+                    # action = cat.sample().item()
+                    action = self.train_rng.randint(self.mdp.sub_num+1, logits.shape[0])
+            else:
+                while action > self.mdp.sub_num: # >= ------ >
+                    action = cat.sample().item()
+                    if self.random_action_prob > 0 and self.train_rng.uniform() < self.random_action_prob:
+                        action = self.train_rng.randint(int(t < self.min_blocks), logits.shape[0])
+            q = torch.cat([m_o[:, 0].reshape(-1), s_o.reshape(-1)])
+            trajectory_stats.append((q[action].item(), action, torch.logsumexp(q, 0).item()))
+            action_stats.append(action)
+            if t >= self.min_blocks and action == 0:
+                r = self._get_reward(m)
+                samples.append(((m,), ((-1,0),), r, None, 1))
+                #todo.....
+                break
+            else:
+                action = max(0, action-1)
+                action = (action % self.mdp.num_blocks, action // self.mdp.num_blocks)
+                #print('..', action)
+                m_old = m
+                m = self.mdp.add_block_to(m, *action)
+                if len(m.blocks) and not len(m.stems) or t == max_blocks - 1:
+                    # can't add anything more to this mol so let's make it
+                    # terminal. Note that this node's parent isn't just m,
+                    # because this is a sink for all parent transitions
+                    r = self._get_reward(m)
+                    if self.ignore_parents:
+                        samples.append(((m_old,), (action,), r, m, 1))
+                    else:
+                        samples.append((*zip(*self.mdp.parents(m)), r, m, 1))
+                    break
+                else:
+                    if self.ignore_parents:
+                        samples.append(((m_old,), (action,), 0, m, 0))
+                    else:
+                        samples.append((*zip(*self.mdp.parents(m)), 0, m, 0))
+        p = self.mdp.mols2batch([self.mdp.mol2repr(i) for i in samples[-1][0]])
+        qp = self.sampling_model(p, None)
+        qsa_p = self.sampling_model.index_output_by_action(
+            p, qp[0], qp[1][:, 0],
+            torch.tensor(samples[-1][1], device=self._device).long())
+        inflow = torch.logsumexp(qsa_p.flatten(), 0).item()
+        self.sampled_mols.append((r, m, action_stats, inflow))
+        if self.replay_mode == 'online' or self.replay_mode == 'prioritized':
+            m.reward = r
+            self._add_mol_to_online(r, m, inflow)
+        return samples
+
+    def _add_mol_to_online(self, r, m, inflow):
+        if self.replay_mode == 'online':
+            r = r + self.train_rng.normal() * 0.01
+            if len(self.online_mols) < self.max_online_mols or r > self.online_mols[0][0]:
+                self.online_mols.append((r, m))
+            if len(self.online_mols) > self.max_online_mols:
+                self.online_mols = sorted(self.online_mols)[max(int(0.05 * self.max_online_mols), 1):]
+        elif self.replay_mode == 'prioritized':
+            self.online_mols.append((abs(inflow - np.log(r)), m))
+            if len(self.online_mols) > self.max_online_mols * 1.1:
+                self.online_mols = self.online_mols[-self.max_online_mols:]
+
+
+    def _get_reward(self, m):
+        rdmol = m.mol
+        if rdmol is None:
+            return self.R_min
+        smi = m.smiles
+        if smi in self.train_mols_map:
+            return self.train_mols_map[smi].reward
+        return self.r2r(normscore=self.proxy_reward(smi))
+
+    def sample(self, n):
+        if self.replay_mode == 'dataset':
+            eidx = self.train_rng.randint(0, len(self.train_mols), n)
+            samples = sum((self._get(i, self.train_mols) for i in eidx), [])
+        elif self.replay_mode == 'online':
+            eidx = self.train_rng.randint(0, max(1,len(self.online_mols)), n)
+            samples = sum((self._get(i, self.online_mols) for i in eidx), [])
+        elif self.replay_mode == 'prioritized':
+            if not len(self.online_mols):
+                # _get will sample from the model
+                samples = sum((self._get(0, self.online_mols) for i in range(n)), [])
+            else:
+                prio = np.float32([i[0] for i in self.online_mols])
+                eidx = self.train_rng.choice(len(self.online_mols), n, False, prio/prio.sum())
+                samples = sum((self._get(i, self.online_mols) for i in eidx), [])
+        return zip(*samples)
+
+    def sample2batch(self, mb):
+        p, a, r, s, d, *o = mb
+        mols = (p, s)
+        original_s = s
+        # The batch index of each parent
+        p_batch = torch.tensor(sum([[i]*len(p) for i,p in enumerate(p)], []),
+                               device=self._device).long()
+        # Convert all parents and states to repr. Note that this
+        # concatenates all the parent lists, which is why we need
+        # p_batch
+        p = self.mdp.mols2batch(list(map(self.mdp.mol2repr, sum(p, ()))))
+        s = self.mdp.mols2batch([self.mdp.mol2repr(i) for i in s])
+        # Concatenate all the actions (one per parent per sample)
+        a = torch.tensor(sum(a, ()), device=self._device).long()
+        # rewards and dones
+        r = torch.tensor(r, device=self._device).to(self.floatX)
+        d = torch.tensor(d, device=self._device).to(self.floatX)
+        return (p, p_batch, a, r, s, d, mols, original_s, *o)
+
+    def r2r(self, normscore=None):
+        normscore = max(self.R_min, normscore)
+        return (normscore/self.reward_norm) ** self.reward_exp
+
+
+    def start_samplers(self, n, mbsize):
+        self.ready_events = [threading.Event() for i in range(n)]
+        self.resume_events = [threading.Event() for i in range(n)]
+        self.results = [None] * n
+        def f(idx):
+            while not self.stop_event.is_set():
+                try:
+                    self.results[idx] = self.sample2batch(self.sample(mbsize))
+                except Exception as e:
+                    print("Exception while sampling:")
+                    print(e)
+                    self.sampler_threads[idx].failed = True
+                    self.sampler_threads[idx].exception = e
+                    self.ready_events[idx].set()
+                    break
+                self.ready_events[idx].set()
+                self.resume_events[idx].clear()
+                self.resume_events[idx].wait()
+        self.sampler_threads = [threading.Thread(target=f, args=(i,)) for i in range(n)]
+        [setattr(i, 'failed', False) for i in self.sampler_threads]
+        [i.start() for i in self.sampler_threads]
+        round_robin_idx = [0]
+        def get():
+            while True:
+                idx = round_robin_idx[0]
+                round_robin_idx[0] = (round_robin_idx[0] + 1) % n
+                if self.ready_events[idx].is_set():
+                    r = self.results[idx]
+                    self.ready_events[idx].clear()
+                    self.resume_events[idx].set()
+                    return r
+                elif round_robin_idx[0] == 0:
+                    time.sleep(0.001)
+        return get
+
+    def stop_samplers_and_join(self):
+        self.stop_event.set()
+        if hasattr(self, 'sampler_threads'):
+          while any([i.is_alive() for i in self.sampler_threads]):
+            [i.set() for i in self.resume_events]
+            [i.join(0.05) for i in self.sampler_threads]
+    
+    def evaluate(self, epoch, algo = None):
+        self.evaluator.add(self.sampled_mols[self.last_idx:])
+        print('update size is ',len(self.sampled_mols)-self.last_idx)
+        self.last_idx=len(self.sampled_mols)
+        avg_topk_rs, avg_topk_tanimoto, num_modes_above_7_5, num_modes_above_8_0, \
+            num_mols_above_7_5, num_mols_above_8_0= self.evaluator.eval_mols()
+        print(f"state_visited={len(self.sampled_mols)};"
+                f"num_modes R>7.5={num_modes_above_7_5};num_mols_above_7_5={num_mols_above_7_5};"
+                f"num_modes R>8={num_modes_above_8_0};num_mols_above_8_0={num_mols_above_8_0};reward_topk:{avg_topk_rs};avg_topk_tanimoto:{avg_topk_tanimoto}")    
+
+
+class DatasetDirect(Dataset):
+    def sample(self, n):
+        trajectories = [self._get_sample_model() for i in range(n)]
+        batch = (*zip(*sum(trajectories, [])),
+                 sum([[i] * len(t) for i, t in enumerate(trajectories)], []),
+                 [len(t) for t in trajectories])
+        return batch
+
+    def sample2batch(self, mb):
+        s, a, r, sp, d, idc, lens = mb
+        mols = (s, sp)
+        s = self.mdp.mols2batch([self.mdp.mol2repr(i[0]) for i in s])
+        a = torch.tensor(sum(a, ()), device=self._device).long()
+        r = torch.tensor(r, device=self._device).to(self.floatX)
+        d = torch.tensor(d, device=self._device).to(self.floatX)
+        n = torch.tensor([len(self.mdp.parents(m)) if (m is not None) else 1 for m in sp], device=self._device).to(self.floatX)
+        idc = torch.tensor(idc, device=self._device).long()
+        lens = torch.tensor(lens, device=self._device).long()
+        return (s, a, r, d, n, mols, idc, lens)
+
+def make_model(args, mdp, out_per_mol=1):
+    if args.repr_type == 'block_graph':
+        model = model_block.GraphAgent(nemb=args.nemb,
+                                       nvec=0,
+                                       out_per_stem=mdp.num_blocks,
+                                       out_per_mol=out_per_mol,
+                                       num_conv_steps=args.num_conv_steps,
+                                       mdp_cfg=mdp,
+                                       version=args.model_version)
+    else:
+        raise ValueError('reimplement me')
+    return model
+
+_stop = [None]
+
+def train_model_with_proxy(args, model, proxy, dataset, num_steps=None, do_save=True):
+    debug_no_threads = True
+    device = torch.device('cuda')
+
+    if num_steps is None:
+        num_steps = args.num_iterations + 1
+
+    tau = args.bootstrap_tau
+    if args.bootstrap_tau > 0:
+        target_model = deepcopy(model)
+
+    if do_save:
+        exp_dir = f'{args.save_path}/{args.array}_{args.run}/'
+        os.makedirs(exp_dir, exist_ok=True)
+
+
+    dataset.set_sampling_model(model, proxy, sample_prob=args.sample_prob)
+
+    def save_stuff(iter):
+        # corr_logp = compute_correlation(model, dataset.mdp, args)
+        # pickle.dump(corr_logp, gzip.open(f'{exp_dir}/{iter}_model_logp_pred.pkl.gz', 'wb'))
+
+        pickle.dump([i.data.cpu().numpy() for i in model.parameters()],
+                    gzip.open(f'{exp_dir}/' + str(iter) + '_params.pkl.gz', 'wb'))
+
+        pickle.dump(dataset.sampled_mols,
+                    gzip.open(f'{exp_dir}/' + str(iter) + '_sampled_mols.pkl.gz', 'wb'))
+
+        pickle.dump({'train_losses': train_losses,
+                     'test_losses': test_losses,
+                     'test_infos': test_infos,
+                     'time_start': time_start,
+                     'time_now': time.time(),
+                     'args': args,},
+                    gzip.open(f'{exp_dir}/' + str(iter) + '_info.pkl.gz', 'wb'))
+
+        pickle.dump(train_infos,
+                    gzip.open(f'{exp_dir}/' + str(iter) + '_train_info.pkl.gz', 'wb'))
+
+
+    tf = lambda x: torch.tensor(x, device=device).to(args.floatX)
+    tint = lambda x: torch.tensor(x, device=device).long()
+    if args.objective == 'tb':
+        model.logZ = nn.Parameter(tf(args.initial_log_Z))
+        
+    opt = torch.optim.Adam(model.parameters(), args.learning_rate, weight_decay=args.weight_decay,
+                           betas=(args.opt_beta, args.opt_beta2),
+                           eps=args.opt_epsilon)
+
+    mbsize = args.mbsize
+    ar = torch.arange(mbsize)
+
+    if not debug_no_threads:
+        sampler = dataset.start_samplers(8, mbsize)
+        
+
+    last_losses = []
+
+    def stop_everything():
+        print('joining')
+        dataset.stop_samplers_and_join()
+    _stop[0] = stop_everything
+
+    train_losses = []
+    test_losses = []
+    test_infos = []
+    train_infos = []
+    time_start = time.time()
+    time_last_check = time.time()
+
+    loginf = 1000 # to prevent nans
+    log_reg_c = args.log_reg_c
+    clip_loss = tf([args.clip_loss])
+    balanced_loss = args.balanced_loss
+    do_nblocks_reg = False
+    max_blocks = args.max_blocks
+    leaf_coef = args.leaf_coef
+    
+    Lambda = tf([args.subtb_lambda])
+
+    for i in range(num_steps):
+        if not debug_no_threads:
+            r = sampler()
+            for thread in dataset.sampler_threads:
+                if thread.failed:
+                    stop_everything()
+                    pdb.post_mortem(thread.exception.__traceback__)
+                    return
+            minibatch = r
+        else:
+            minibatch = dataset.sample2batch(dataset.sample(mbsize))
+
+            
+        if args.objective == 'fm':
+            p, pb, a, r, s, d, mols, original_s = minibatch
+            # Since we sampled 'mbsize' trajectories, we're going to get
+            # roughly mbsize * H (H is variable) transitions
+            ntransitions = r.shape[0]
+            # state outputs
+            if tau > 0:
+                with torch.no_grad():
+                    stem_out_s, mol_out_s = target_model(s, None)
+            else:
+                stem_out_s, mol_out_s = model(s, None)
+            # parents of the state outputs
+            stem_out_p, mol_out_p = model(p, None)
+            # index parents by their corresponding actions
+            qsa_p = model.index_output_by_action(p, stem_out_p, mol_out_p[:, 0], a)
+            # then sum the parents' contribution, this is the inflowW
+            exp_inflow = (torch.zeros((ntransitions,), device=device, dtype=dataset.floatX)
+                          .index_add_(0, pb, torch.exp(qsa_p))) # pb is the parents' batch index
+            inflow = torch.log(exp_inflow + log_reg_c)
+            # sum the state's Q(s,a), this is the outflow
+            for j in range(len(s.stems_batch)):
+                idx = s.stems_batch[j].item()  # 当前样本对应的 state 索引
+                if original_s[idx] is None:
+                    assert d[idx] == 1
+                    continue
+                if len(original_s[idx].blocks) == 1:
+                    # 若该state只有1个block，禁用“sub block”部分
+                    with torch.no_grad():
+                        stem_out_s[j, :-dataset.mdp.core_num] = -10000
+                else:
+                    # 否则禁用“core block”部分
+                    with torch.no_grad():
+                        stem_out_s[j, -dataset.mdp.core_num:] = -10000
+            exp_outflow = model.sum_output(s, torch.exp(stem_out_s), torch.exp(mol_out_s[:, 0]))
+
+            # include reward and done multiplier, then take the log
+            # we're guarenteed that r > 0 iff d = 1, so the log always works
+            outflow_plus_r = torch.log(log_reg_c + r + exp_outflow * (1-d))
+            if do_nblocks_reg:
+                losses = _losses = ((inflow - outflow_plus_r) / (s.nblocks * max_blocks)).pow(2)
+            else:
+                losses = _losses = (inflow - outflow_plus_r).pow(2)
+            if clip_loss > 0:
+                ld = losses.detach()
+                losses = losses / ld * torch.minimum(ld, clip_loss)
+
+            term_loss = (losses * d).sum() / (d.sum() + 1e-20)
+            flow_loss = (losses * (1-d)).sum() / ((1-d).sum() + 1e-20)
+            if balanced_loss:
+                loss = term_loss * leaf_coef + flow_loss
+            else:
+                loss = losses.mean()
+            opt.zero_grad()
+            loss.backward(retain_graph=(not i % 50))
+
+            _term_loss = (_losses * d).sum() / (d.sum() + 1e-20)
+            _flow_loss = (_losses * (1-d)).sum() / ((1-d).sum() + 1e-20)
+            last_losses.append((loss.item(), term_loss.item(), flow_loss.item()))
+            train_losses.append((loss.item(), _term_loss.item(), _flow_loss.item(),
+                                 term_loss.item(), flow_loss.item()))
+            if not i % 50:
+                train_infos.append((
+                    _term_loss.data.cpu().numpy(),
+                    _flow_loss.data.cpu().numpy(),
+                    exp_inflow.data.cpu().numpy(),
+                    exp_outflow.data.cpu().numpy(),
+                    r.data.cpu().numpy(),
+                    mols[1],
+                    [i.pow(2).sum().item() for i in model.parameters()],
+                    torch.autograd.grad(loss, qsa_p, retain_graph=True)[0].data.cpu().numpy(),
+                    torch.autograd.grad(loss, stem_out_s, retain_graph=True)[0].data.cpu().numpy(),
+                    torch.autograd.grad(loss, stem_out_p, retain_graph=True)[0].data.cpu().numpy(),
+                ))
+            if args.clip_grad > 0:
+                torch.nn.utils.clip_grad_value_(model.parameters(),
+                                                args.clip_grad)
+        else:
+            s, a, r, d, n, mols, idc, lens, *o = minibatch
+            stem_out_s, mol_out_s = model(s, None)
+            # index parents by their corresponding actions
+            logits = -model.action_negloglikelihood(s, a, 0, stem_out_s, mol_out_s)
+            tzeros = torch.zeros(idc[-1]+1, device=device, dtype=args.floatX)
+            traj_r = tzeros.index_add(0, idc, r)
+            if args.objective == 'tb':
+                uniform_log_PB = tzeros.index_add(0, idc, torch.log(1/n))
+                traj_logits = tzeros.index_add(0, idc, logits)
+                losses = ((model.logZ + traj_logits) - (torch.log(traj_r) + uniform_log_PB)).pow(2)
+                loss = losses.mean()
+            elif args.objective == 'detbal':
+                loss = detailed_balance_loss(logits, torch.log(1/n), mol_out_s[:, 1], torch.log(traj_r), lens)
+                uniform_log_PB = tzeros.index_add(0, idc, torch.log(1/n))
+                traj_logits = tzeros.index_add(0, idc, logits)
+            elif args.objective == 'subtb':
+                loss = tb_lambda_loss(logits, torch.log(1/n), mol_out_s[:, 1], torch.log(traj_r), lens, Lambda)
+                uniform_log_PB = tzeros.index_add(0, idc, torch.log(1/n))
+                traj_logits = tzeros.index_add(0, idc, logits)
+            opt.zero_grad()
+            loss.backward()
+
+            last_losses.append((loss.item(),))
+            train_losses.append((loss.item(),))
+            if not i % 50:
+                train_infos.append((
+                    r.data.cpu().numpy(),
+                    mols[1],
+                    [i.pow(2).sum().item() for i in model.parameters()],
+                ))
+            if args.clip_grad > 0:
+                torch.nn.utils.clip_grad_value_(model.parameters(),
+                                               args.clip_grad)
+        opt.step()
+        model.training_steps = i + 1
+        if tau > 0:
+            for _a,b in zip(model.parameters(), target_model.parameters()):
+                b.data.mul_(1-tau).add_(tau*_a)
+
+        print_interval = 100
+        if not i % 100:
+            last_losses = [np.round(np.mean(i), 3) for i in zip(*last_losses)]
+            print(i, last_losses)
+            print('time:', time.time() - time_last_check)
+            time_last_check = time.time()
+            last_losses = []
+
+            if not i % 50000 and do_save:
+                save_stuff(i)
+
+        if not i%print_interval:
+            dataset.evaluate(i)
+
+    stop_everything()
+    if do_save:
+        save_stuff(i)
+    return model
+
+import os
+if __name__ == "__main__":
+    print("PID is:",os.getpid())
+    bpath_core = "data/blocks_core.json"
+    # bpath_sub = "data/blocks_sub.json"
+    bpath_sub = "data/blocks_sub_one_step.json"#if only one-step is needed
+    device = torch.device('cuda')
+    args = parser.parse_args()
+    print(args)
+
+    if args.floatX == 'float32':
+        args.floatX = torch.float
+    else:
+        args.floatX = torch.double
+        
+    if args.objective == 'fm':
+        dataset = Dataset(args, bpath_core, bpath_sub, device, floatX=args.floatX)
+    else:
+        args.ignore_parents = True
+        dataset = DatasetDirect(args, bpath_core, bpath_sub, device, floatX=args.floatX)
+
+
+    mdp = dataset.mdp
+
+    model = make_model(args, mdp, out_per_mol=1 + (1 if args.objective in ['subtb', 'subtbWS', 'detbal'] else 0))
+    model.to(args.floatX)
+    model.to(device)
+
+    proxy = Proxy('GraphGPS/configs/GPS/a-mols.yaml', 'model_best.pth', device)
+
+    train_model_with_proxy(args, model, proxy, dataset, do_save=True)
+    print('Done.')
+
+# if __name__ == "__main__":
+#     args = parser.parse_args()
+#     proxy = Proxy(args.cfg, args.ckpt, 'cuda')
+#     smiles_batch = [
+#         "Cc1cc(C)c(N2CN(c3c(C)cc(C)cc3C)C(=O)C2=O)c(C)c1",
+#         "Cc1cc(C)c(N2CN(c3c(C)cc(C)cc3C)C(=O)C2=O)c(C)c1",
+#         "Cc1cc(C)c(N2CN(c3c(C)cc(C)cc3C)C(=O)C2=O)c(C)c1"
+#     ]
+#     with torch.no_grad():
+#         output = proxy(smiles_batch)
+#     bapth_core,bpath_sub = 'data/blocks_core.json','data/bpath_sub.json'
+#     print(output)
+#python test_proxy_model.py --cfg GraphGPS/configs/GPS/a-mols.yaml --ckpt GraphGPS/results/models/model_best.pth

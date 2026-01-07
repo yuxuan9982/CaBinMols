@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=4 nohup python -u gflownet.py > output_one_step.log 2>&1 &
