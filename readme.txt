@@ -37,3 +37,13 @@ install:
     pip install tensorboardX
     pip install ogb
     pip install wandb
+
+
+
+nohup python gflownet.py > output_one_step_newtest.py 2>&1 &
+
+
+
+更新proxy model_best
+
+在Graphgps/graphgps/loader/dataset/smiles_dataset.py里，重新处理文件

@@ -707,7 +707,7 @@ if __name__ == "__main__":
     model.to(args.floatX)
     model.to(device)
 
-    proxy = Proxy('GraphGPS/configs/GPS/a-mols.yaml', 'model_best.pth', device)
+    proxy = Proxy('GraphGPS/configs/GPS/a-mols.yaml', args.ckpt, device)
 
     train_model_with_proxy(args, model, proxy, dataset, do_save=True)
     print('Done.')

@@ -181,7 +181,9 @@ def load_dataset_master(format, name, dataset_dir):
     elif format == 'custom':
         def create_custom_loader():
             # 从配置读取参数
-            dataset = SmilesDataset()
+            csv_path = getattr(cfg.dataset, 'csv_path', 'NHC-cracker-zzy-v1.csv')
+            logging.info(f"[*] Loading SmilesDataset with csv_path: {csv_path}")
+            dataset = SmilesDataset(csv_path=csv_path)
             s_dict = dataset.get_idx_split()
             dataset.split_idxs = [s_dict[s] for s in ['train', 'val', 'test']]
             return dataset

@@ -4,6 +4,7 @@ import sys
 import torch
 import logging
 import faulthandler
+import argparse
 
 # Enable faulthandler to get stack trace on segfault
 faulthandler.enable()
@@ -123,6 +124,16 @@ def run_loop_settings():
 if __name__ == '__main__':
     try:
         print("[DEBUG] Step 1: Loading command line arguments...", flush=True)
+        # Extract csv_path from command line arguments before parse_args
+        csv_path_arg = None
+        if '--csv_path' in sys.argv:
+            idx = sys.argv.index('--csv_path')
+            if idx + 1 < len(sys.argv):
+                csv_path_arg = sys.argv[idx + 1]
+                # Remove from sys.argv to avoid conflicts with GraphGym's parse_args
+                sys.argv.pop(idx)
+                sys.argv.pop(idx)
+        
         # Load cmd line args
         args = parse_args()
         print(f"[DEBUG] Step 2: Args loaded: {args}", flush=True)
@@ -131,6 +142,12 @@ if __name__ == '__main__':
         # Load config file
         set_cfg(cfg)
         load_cfg(cfg, args)
+        
+        # Set csv_path if provided via command line
+        if csv_path_arg is not None:
+            cfg.dataset.csv_path = csv_path_arg
+            print(f"[DEBUG] CSV path set to: {cfg.dataset.csv_path}", flush=True)
+        
         custom_set_out_dir(cfg, args.cfg_file, cfg.name_tag)
         dump_cfg(cfg)
         print("[DEBUG] Step 4: Config loaded and dumped", flush=True)
