@@ -146,6 +146,75 @@ class Top1000:
 
 #     return avg_topk_rs, avg_topk_tanimoto, num_modes_above_7_5, num_modes_above_8_0, num_above_7_5, num_above_8_0
 
+def verify_csv_pkl_files(csv_path="molecule_results_n.csv", pkl_path="molecule_objects.pkl.gz", verbose=True):
+    """
+    独立的验证函数，验证CSV文件和pickle文件是否对应
+    
+    Args:
+        csv_path: CSV文件路径
+        pkl_path: pickle文件路径
+        verbose: 是否打印详细信息
+        
+    Returns:
+        bool: 如果所有记录都匹配返回True，否则返回False
+    """
+    try:
+        # 读取CSV文件
+        csv_smiles = []
+        with open(csv_path, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader)  # 跳过表头
+            for row in reader:
+                if len(row) >= 1:
+                    csv_smiles.append(row[0])  # smiles在第一列
+        
+        # 读取pickle文件
+        pkl_data = []
+        with gzip.open(pkl_path, "rb") as f:
+            while True:
+                try:
+                    index, mol_obj = pickle.load(f)
+                    pkl_data.append((index, mol_obj.smiles))
+                except EOFError:
+                    break
+        
+        # 验证数量是否一致
+        if len(csv_smiles) != len(pkl_data):
+            if verbose:
+                print(f"❌ 数量不匹配: CSV有{len(csv_smiles)}行, pickle有{len(pkl_data)}个对象")
+            return False
+        
+        # 验证每个索引和smiles是否匹配
+        mismatches = []
+        for i, (index, pkl_smiles) in enumerate(pkl_data):
+            if index != i:
+                mismatches.append(f"索引不匹配: 期望{i}, 实际{index}")
+            if i < len(csv_smiles) and csv_smiles[i] != pkl_smiles:
+                mismatches.append(f"第{i}行: CSV smiles='{csv_smiles[i]}', pickle smiles='{pkl_smiles}'")
+        
+        if mismatches:
+            if verbose:
+                print(f"❌ 发现{len(mismatches)}个不匹配:")
+                for mismatch in mismatches[:10]:  # 只显示前10个
+                    print(f"  - {mismatch}")
+                if len(mismatches) > 10:
+                    print(f"  ... 还有{len(mismatches)-10}个不匹配")
+            return False
+        
+        if verbose:
+            print(f"✅ 验证通过: {len(csv_smiles)}条记录全部匹配")
+        return True
+        
+    except FileNotFoundError as e:
+        if verbose:
+            print(f"❌ 文件未找到: {e}")
+        return False
+    except Exception as e:
+        if verbose:
+            print(f"❌ 验证过程出错: {e}")
+        return False
+
+
 class Evaluator:
     def __init__(self,reward_norm=8, reward_exp=10, algo="gfn"):
         self.numModes_above_7_5=NumModes(reward_exp=reward_exp, reward_norm=reward_norm, reward_thr=3.5)
@@ -162,6 +231,9 @@ class Evaluator:
         with open("molecule_results_n.csv", "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(["smiles", "reward", "core"])
+        # 初始化分子对象保存文件（使用gzip压缩以减小文件大小）
+        self.mol_file = gzip.open("molecule_objects.pkl.gz", "wb")
+        self.mol_file_index = 0  # 用于记录写入顺序，方便与CSV对应
         self.avg_core = [0 for _ in range(32)]
         self.cnt_core = [0 for _ in range(32)]
 
@@ -193,6 +265,10 @@ class Evaluator:
             with open("molecule_results_n.csv", "a", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
                 writer.writerow([m.smiles, r, action_states[0]-853])
+            # 同时保存分子对象到pickle文件（使用gzip压缩）
+            pickle.dump((self.mol_file_index, m), self.mol_file)
+            self.mol_file.flush()  # 确保数据立即写入，避免丢失
+            self.mol_file_index += 1
     
     def eval_mols(self):
         avg_topk_rs = {}
@@ -210,3 +286,38 @@ class Evaluator:
         print("Average reward per core:", [avg / cnt if cnt > 0 else 0 for avg, cnt in zip(self.avg_core, self.cnt_core)])
         print("Visit time per core:", [cnt for cnt in self.cnt_core])
         return avg_topk_rs, avg_topk_tanimoto, num_modes_above_7_5, num_modes_above_8_0, num_above_7_5, num_above_8_0
+    
+    def verify_csv_pkl_match(self, csv_path="molecule_results_n.csv", pkl_path="molecule_objects.pkl.gz", verbose=True):
+        """
+        验证CSV文件和pickle文件是否对应（调用独立验证函数）
+        
+        Args:
+            csv_path: CSV文件路径
+            pkl_path: pickle文件路径
+            verbose: 是否打印详细信息
+            
+        Returns:
+            bool: 如果所有记录都匹配返回True，否则返回False
+        """
+        return verify_csv_pkl_files(csv_path, pkl_path, verbose)
+    
+    def close(self):
+        """关闭分子对象文件"""
+        if hasattr(self, 'mol_file') and self.mol_file is not None:
+            self.mol_file.close()
+            self.mol_file = None
+    
+    def __del__(self):
+        """析构函数，确保文件被关闭"""
+        self.close()
+
+
+# 使用示例：
+# if __name__ == "__main__":
+#     # 方式1: 使用独立函数验证
+#     verify_csv_pkl_files("molecule_results_n.csv", "molecule_objects.pkl.gz")
+#     
+#     # 方式2: 使用Evaluator实例验证
+#     evaluator = Evaluator()
+#     evaluator.verify_csv_pkl_match()
+#     evaluator.close()

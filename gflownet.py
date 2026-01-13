@@ -414,6 +414,7 @@ class Dataset:
         print(f"state_visited={len(self.sampled_mols)};"
                 f"num_modes R>7.5={num_modes_above_7_5};num_mols_above_7_5={num_mols_above_7_5};"
                 f"num_modes R>8={num_modes_above_8_0};num_mols_above_8_0={num_mols_above_8_0};reward_topk:{avg_topk_rs};avg_topk_tanimoto:{avg_topk_tanimoto}")    
+        # self.evaluator.verify_csv_pkl_match()
 
 
 class DatasetDirect(Dataset):
@@ -683,8 +684,8 @@ import os
 if __name__ == "__main__":
     print("PID is:",os.getpid())
     bpath_core = "data/blocks_core.json"
-    # bpath_sub = "data/blocks_sub.json"
-    bpath_sub = "data/blocks_sub_one_step.json"#if only one-step is needed
+    bpath_sub = "data/blocks_sub.json"
+    # bpath_sub = "data/blocks_sub_one_step.json"#if only one-step is needed
     device = torch.device('cuda')
     args = parser.parse_args()
     print(args)

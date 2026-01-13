@@ -12,8 +12,8 @@ def main():
     # Arguments for proxy
     cfg_path = 'GraphGPS/configs/GPS/a-mols.yaml'
     # ckpt_path = 'GraphGPS/results/models/model_best.pth'
-    ckpt_path = 'GraphGPS/results/models/model_best_v2_merged.pth'
-    # ckpt_path = 'model_best.pth'
+    # ckpt_path = 'GraphGPS/results/models/model_best_v2_merged.pth'
+    ckpt_path = 'model_best.pth'
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load the data
@@ -67,6 +67,15 @@ def main():
     print(f"RMSE: {rmse:.4f}")
 
     # Optionally: print a few rows for visual inspection
+    # INSERT_YOUR_CODE
+    threshold = 3.4
+    proxy_ge_34 = sum([p >= threshold for p in proxy_preds])
+    truth_ge_34 = sum([t >= threshold for t in true_de_triplet])
+    both_ge_34 = sum([(p >= threshold) and (t >= threshold) for p, t in zip(proxy_preds, true_de_triplet)])
+
+    print(f"Number of proxy predictions >= {threshold}: {proxy_ge_34}")
+    print(f"Number of ground truths >= {threshold}: {truth_ge_34}")
+    print(f"Number of both proxy and truth >= {threshold}: {both_ge_34}")
     for i in range(200,min(230, len(true_de_triplet))):
         print(f"SMILES: {smiles_list[i]}, Truth: {true_de_triplet[i]:.4f}, Proxy: {proxy_preds[i]:.4f}, Diff: {diff[i]:.4f}")
 
