@@ -194,13 +194,40 @@ if __name__ == '__main__':
             loaders = create_loader()
             print(f"[DEBUG] Loaders created: {type(loaders)}", flush=True)
             
+            # 在 create_loader 之后，从数据集重新设置 dim_out（因为可能被重置）
+            if hasattr(cfg.dataset, 'format') and cfg.dataset.format == 'custom':
+                # 尝试从 loaders 中获取数据集
+                dataset = None
+                if len(loaders) > 0:
+                    if hasattr(loaders[0], 'dataset'):
+                        dataset = loaders[0].dataset
+                    elif hasattr(loaders[0], 'loader') and hasattr(loaders[0].loader, 'dataset'):
+                        dataset = loaders[0].loader.dataset
+                
+                # 如果无法从 loaders 获取，直接重新加载数据集
+                if dataset is None or not hasattr(dataset, 'num_tasks'):
+                    # from graphgps.loader.dataset.smiles_dataset import SmilesDataset
+                    # csv_path = getattr(cfg.dataset, 'csv_path', 'NHC-cracker-zzy-v1.csv')
+                    # temp_dataset = SmilesDataset(csv_path=csv_path)
+                    # if len(temp_dataset) > 0 and hasattr(temp_dataset[0], 'y') and temp_dataset[0].y is not None:
+                    #     if temp_dataset[0].y.dim() > 0 and len(temp_dataset[0].y.shape) > 0:
+                    #         num_tasks = temp_dataset[0].y.shape[0]
+                    #         cfg.share.dim_out = num_tasks
+                    #         logging.info(f"[*] After create_loader: Reset cfg.share.dim_out = {cfg.share.dim_out} from dataset")
+                    assert 0 and "this should not happen"
+                elif hasattr(dataset, 'num_tasks'):
+                    cfg.share.dim_out = dataset.num_tasks
+                    logging.info(f"[*] After create_loader: Reset cfg.share.dim_out = {cfg.share.dim_out} from loader dataset")
+            
             print("[DEBUG] Step 13: Creating loggers...", flush=True)
             loggers = create_logger()
             print(f"[DEBUG] Loggers created: {type(loggers)}", flush=True)
             
             print("[DEBUG] Step 14: Creating model...", flush=True)
+            print(f"[DEBUG] cfg.share.dim_out before create_model: {cfg.share.dim_out}", flush=True)
             model = create_model()
             print(f"[DEBUG] Model created: {type(model)}", flush=True)
+            print(f"[DEBUG] cfg.share.dim_out after create_model: {cfg.share.dim_out}", flush=True)
             
             if cfg.pretrained.dir:
                 print("[DEBUG] Step 15: Initializing model from pretrained...", flush=True)

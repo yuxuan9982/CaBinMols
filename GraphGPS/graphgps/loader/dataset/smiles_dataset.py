@@ -40,6 +40,9 @@ class SmilesDataset(InMemoryDataset):
         # 读取CSV并转换为图数据
         data_df = pd.read_csv(self.csv_path)
         smiles_list = data_df['SMILES']
+        
+        # 定义要预测的性质（除了 dE_triplet 之外的所有性质）
+        target_properties = ['vbur_ratio_vbur_vtot', 'dE_AuCl','dE_triplet']
 
         print('Converting SMILES strings into graphs...')
         data_list = []
@@ -51,9 +54,10 @@ class SmilesDataset(InMemoryDataset):
             graph = self.smiles2graph(smiles)
 
             
-            # 跳过 NaN 或空标签
-            if pd.isna(data_df['dE_triplet'].iloc[i]):
-                print(f"[Warning] Skipped sample {i} ({smiles}) — dE_triplet is NaN or missing.")
+            # 检查所有要预测的性质是否都有效（跳过有 NaN 的样本）
+            missing_props = [prop for prop in target_properties if pd.isna(data_df[prop].iloc[i])]
+            if missing_props:
+                print(f"[Warning] Skipped sample {i} ({smiles}) — missing properties: {missing_props}")
                 continue
 
             assert (len(graph['edge_feat']) == graph['edge_index'].shape[1])
@@ -66,7 +70,9 @@ class SmilesDataset(InMemoryDataset):
                 torch.int64)
             data.x = torch.from_numpy(graph['node_feat']).to(torch.int64)
             
-            data.y = torch.Tensor([data_df['dE_triplet'].iloc[i]]).to(torch.double)
+            # 将所有要预测的性质组合成一个向量
+            target_values = [data_df[prop].iloc[i] for prop in target_properties]
+            data.y = torch.Tensor(target_values).to(torch.double)
             data_list.append(data)
 
         if self.pre_transform is not None:

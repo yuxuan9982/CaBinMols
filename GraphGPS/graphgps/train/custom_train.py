@@ -21,6 +21,13 @@ def train_epoch(logger, loader, model, optimizer, scheduler, batch_accumulation)
         batch.split = 'train'
         batch.to(torch.device(cfg.accelerator))
         pred, true = model(batch)
+        
+        # 对于多任务回归，reshape true 从 [batch_size * num_tasks] 到 [batch_size, num_tasks]
+        if cfg.dataset.task_type == 'regression' and hasattr(cfg.share, 'dim_out') and cfg.share.dim_out > 1:
+            assert true.dim() == 1 and true.shape[0] == pred.shape[0] * cfg.share.dim_out
+            # if true.dim() == 1 and true.shape[0] == pred.shape[0] * cfg.share.dim_out:
+            true = true.view(pred.shape[0], cfg.share.dim_out)
+        
         if cfg.dataset.name == 'ogbg-code2':
             loss, pred_score = subtoken_cross_entropy(pred, true)
             _true = true
@@ -59,6 +66,12 @@ def eval_epoch(logger, loader, model, split='val'):
         else:
             pred, true = model(batch)
             extra_stats = {}
+        
+        # 对于多任务回归，reshape true 从 [batch_size * num_tasks] 到 [batch_size, num_tasks]
+        if cfg.dataset.task_type == 'regression' and hasattr(cfg.share, 'dim_out') and cfg.share.dim_out > 1:
+            if true.dim() == 1 and true.shape[0] == pred.shape[0] * cfg.share.dim_out:
+                true = true.view(pred.shape[0], cfg.share.dim_out)
+        
         if cfg.dataset.name == 'ogbg-code2':
             loss, pred_score = subtoken_cross_entropy(pred, true)
             _true = true

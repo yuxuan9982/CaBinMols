@@ -186,6 +186,17 @@ def load_dataset_master(format, name, dataset_dir):
             dataset = SmilesDataset(csv_path=csv_path)
             s_dict = dataset.get_idx_split()
             dataset.split_idxs = [s_dict[s] for s in ['train', 'val', 'test']]
+            # 设置 num_tasks 和 cfg.share.dim_out（从第一个样本的 y 形状推断）
+            if len(dataset) > 0 and hasattr(dataset[0], 'y') and dataset[0].y is not None:
+                if dataset[0].y.dim() > 0 and len(dataset[0].y.shape) > 0:
+                    num_tasks = dataset[0].y.shape[0]
+                    dataset.num_tasks = num_tasks
+                    # 设置模型输出维度
+                    cfg.share.dim_out = num_tasks
+                    logging.info(f"[*] Detected {num_tasks} tasks from dataset, setting cfg.share.dim_out = {num_tasks}")
+                else:
+                    dataset.num_tasks = 1
+                    cfg.share.dim_out = 1
             return dataset
         dataset = create_custom_loader()
     else:
@@ -194,6 +205,11 @@ def load_dataset_master(format, name, dataset_dir):
     pre_transform_in_memory(dataset, partial(task_specific_preprocessing, cfg=cfg))
 
     log_loaded_dataset(dataset, format, name)
+    
+    # 对于自定义数据集，确保在模型创建前设置正确的输出维度
+    if format == 'custom' and hasattr(dataset, 'num_tasks'):
+        cfg.share.dim_out = dataset.num_tasks
+        logging.info(f"[*] Final confirmation: cfg.share.dim_out = {cfg.share.dim_out}")
 
     # Precompute necessary statistics for positional encodings.
     pe_enabled_list = []
@@ -240,6 +256,11 @@ def load_dataset_master(format, name, dataset_dir):
             dataset[dataset.data['train_graph_index']])
         # print(f"Indegrees: {cfg.gt.pna_degrees}")
         # print(f"Avg:{np.mean(cfg.gt.pna_degrees)}")
+    
+    # 对于自定义数据集，在返回前最后一次确认输出维度设置
+    if format == 'custom' and hasattr(dataset, 'num_tasks'):
+        cfg.share.dim_out = dataset.num_tasks
+        logging.info(f"[*] Before returning dataset: cfg.share.dim_out = {cfg.share.dim_out}")
 
     return dataset
 
