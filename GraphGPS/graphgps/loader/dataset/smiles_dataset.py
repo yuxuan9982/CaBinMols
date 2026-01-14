@@ -17,10 +17,11 @@ from tqdm import tqdm
 from rdkit import Chem
 
 class SmilesDataset(InMemoryDataset):
-    def __init__(self, root='datasets', csv_path='NHC-cracker-zzy-v1.csv', smiles2graph=smiles2graph, transform=None, pre_transform=None):
+    def __init__(self, root='datasets', csv_path='NHC-cracker-zzy-v1.csv', smiles2graph=smiles2graph, transform=None, pre_transform=None, use_dE_triplet_as_feature=False):
         self.smiles2graph = smiles2graph
         self.folder = osp.join(root, 'custom')
         self.csv_path = osp.join(self.folder, csv_path)
+        self.use_dE_triplet_as_feature = use_dE_triplet_as_feature
 
         super().__init__(root, transform, pre_transform)
         self.data, self.slices = torch.load(self.processed_paths[0], weights_only=False)
@@ -41,10 +42,20 @@ class SmilesDataset(InMemoryDataset):
         data_df = pd.read_csv(self.csv_path)
         smiles_list = data_df['SMILES']
         
-        # 定义要预测的性质（除了 dE_triplet 之外的所有性质）
-        target_properties = ['vbur_ratio_vbur_vtot', 'dE_AuCl','dE_triplet']
+        # 定义要预测的性质
+        # 如果使用 dE_triplet 作为输入特征，则从预测目标中移除它
+        # if self.use_dE_triplet_as_feature:
+        #     target_properties = ['vbur_ratio_vbur_vtot', 'dE_AuCl']
+        # else:
+        #     target_properties = ['vbur_ratio_vbur_vtot', 'dE_AuCl', 'dE_triplet']
+        target_properties = ['vbur_ratio_vbur_vtot', 'dE_AuCl']
 
         print('Converting SMILES strings into graphs...')
+        if self.use_dE_triplet_as_feature:
+            print('Using dE_triplet as graph-level input feature (data.u)')
+            print(f'Target properties: {target_properties}')
+        else:
+            print(f'Target properties: {target_properties}')
         data_list = []
         for i in tqdm(range(len(smiles_list))):
             data = Data()
@@ -53,6 +64,10 @@ class SmilesDataset(InMemoryDataset):
             # graph = Chem.MolFromSmiles(smiles)
             graph = self.smiles2graph(smiles)
 
+            # 检查 dE_triplet 是否有效（如果用作特征）
+            if self.use_dE_triplet_as_feature and pd.isna(data_df['dE_triplet'].iloc[i]):
+                print(f"[Warning] Skipped sample {i} ({smiles}) — dE_triplet is NaN (required as input feature)")
+                continue
             
             # 检查所有要预测的性质是否都有效（跳过有 NaN 的样本）
             missing_props = [prop for prop in target_properties if pd.isna(data_df[prop].iloc[i])]
@@ -70,6 +85,10 @@ class SmilesDataset(InMemoryDataset):
                 torch.int64)
             data.x = torch.from_numpy(graph['node_feat']).to(torch.int64)
             
+            # 将 dE_triplet 作为图级别特征添加到 data.u（如果启用）
+            if self.use_dE_triplet_as_feature:
+                data.u = torch.Tensor([data_df['dE_triplet'].iloc[i]]).to(torch.double)
+            
             # 将所有要预测的性质组合成一个向量
             target_values = [data_df[prop].iloc[i] for prop in target_properties]
             data.y = torch.Tensor(target_values).to(torch.double)
@@ -79,7 +98,11 @@ class SmilesDataset(InMemoryDataset):
             data_list = [self.pre_transform(data) for data in data_list]
         
         data, slices = self.collate(data_list)
-
+        # 统计并打印 skip 了多少个有缺失的数据
+        total_samples = len(smiles_list)
+        processed_samples = len(data_list)
+        skipped_samples = total_samples - processed_samples
+        print(f"Skipped {skipped_samples} samples due to missing dE_triplet or target properties.")
         print('Saving...')
         torch.save((data, slices), self.processed_paths[0])
     

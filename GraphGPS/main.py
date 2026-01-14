@@ -126,6 +126,7 @@ if __name__ == '__main__':
         print("[DEBUG] Step 1: Loading command line arguments...", flush=True)
         # Extract csv_path from command line arguments before parse_args
         csv_path_arg = None
+
         if '--csv_path' in sys.argv:
             idx = sys.argv.index('--csv_path')
             if idx + 1 < len(sys.argv):
@@ -146,7 +147,7 @@ if __name__ == '__main__':
         # Set csv_path if provided via command line
         if csv_path_arg is not None:
             cfg.dataset.csv_path = csv_path_arg
-            print(f"[DEBUG] CSV path set to: {cfg.dataset.csv_path}", flush=True)
+        print(f"[DEBUG] CSV path set to: {cfg.dataset.csv_path}", flush=True)
         
         custom_set_out_dir(cfg, args.cfg_file, cfg.name_tag)
         dump_cfg(cfg)

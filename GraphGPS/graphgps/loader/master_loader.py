@@ -182,10 +182,18 @@ def load_dataset_master(format, name, dataset_dir):
         def create_custom_loader():
             # 从配置读取参数
             csv_path = getattr(cfg.dataset, 'csv_path', 'NHC-cracker-zzy-v1.csv')
+            use_dE_triplet_as_feature = getattr(cfg.dataset, 'use_dE_triplet_as_feature', False)
             logging.info(f"[*] Loading SmilesDataset with csv_path: {csv_path}")
-            dataset = SmilesDataset(csv_path=csv_path)
+            logging.info(f"[*] Use dE_triplet as feature: {use_dE_triplet_as_feature}")
+            dataset = SmilesDataset(csv_path=csv_path, use_dE_triplet_as_feature=use_dE_triplet_as_feature)
             s_dict = dataset.get_idx_split()
             dataset.split_idxs = [s_dict[s] for s in ['train', 'val', 'test']]
+            
+            # 如果使用 dE_triplet 作为特征，自动设置使用支持图级别特征的 head
+            if use_dE_triplet_as_feature and (not hasattr(cfg.gnn, 'head') or cfg.gnn.head == ''):
+                cfg.gnn.head = 'graph_with_global_feat'
+                logging.info(f"[*] Auto-selected head: graph_with_global_feat (supports graph-level features)")
+            
             # 设置 num_tasks 和 cfg.share.dim_out（从第一个样本的 y 形状推断）
             if len(dataset) > 0 and hasattr(dataset[0], 'y') and dataset[0].y is not None:
                 if dataset[0].y.dim() > 0 and len(dataset[0].y.shape) > 0:

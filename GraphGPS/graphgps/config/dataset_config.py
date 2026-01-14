@@ -17,3 +17,12 @@ def dataset_cfg(cfg):
 
     # infer-link parameters (e.g., edge prediction task)
     cfg.dataset.infer_link_label = "None"
+    
+    # Custom dataset options for SMILES dataset
+    # Path to CSV file for custom dataset format
+    cfg.dataset.csv_path = 'NHC-cracker-zzy-v1.csv'
+    
+    # Whether to use dE_triplet as graph-level input feature instead of prediction target
+    # If True: dE_triplet is stored in data.u and excluded from prediction targets
+    # If False: dE_triplet is included in prediction targets (default behavior)
+    cfg.dataset.use_dE_triplet_as_feature = False
