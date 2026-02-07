@@ -15,6 +15,8 @@ dataset:
   edge_encoder: True
   edge_encoder_name: Bond
   edge_encoder_bn: False
+  num_tasks: 3
+  csv_path: 'NHC-cracker-zzy-v1.csv'
 posenc_LapPE:
   enable: True
   eigen:

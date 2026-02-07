@@ -50,3 +50,9 @@ nohup python gflownet.py > output_one_step_newtest.py 2>&1 &
 
 
 nohup python -u gflownet.py --ckpt GraphGPS/results/models/model_best_v2_merged.pth > output_one_step_v2_merged.log 2>&1 &
+
+
+加入了可选逻辑：用a-mols_with_dE.yaml来选择是否要把dE_triplet加入到graph emb里面
+
+(graphgps) root@yu:/home/yx/codes/CaBinMols/GraphGPS# nohup python -u main.py --cfg configs/GPS/a-mols_with_dE.yaml > output_with_de.log 2>&1 & dE可选配置：use_dE_triplet_as_feature gnn.head
+(graphgps) root@yu:/home/yx/codes/CaBinMols/GraphGPS# nohup python -u main.py --cfg configs/GPS/a-mols.yaml > output_without_de.log 2>&1

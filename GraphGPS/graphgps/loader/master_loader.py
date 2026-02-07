@@ -183,9 +183,11 @@ def load_dataset_master(format, name, dataset_dir):
             # 从配置读取参数
             csv_path = getattr(cfg.dataset, 'csv_path', 'NHC-cracker-zzy-v1.csv')
             use_dE_triplet_as_feature = getattr(cfg.dataset, 'use_dE_triplet_as_feature', False)
+            normalize_targets = getattr(cfg.dataset, 'normalize_targets', True)
             logging.info(f"[*] Loading SmilesDataset with csv_path: {csv_path}")
             logging.info(f"[*] Use dE_triplet as feature: {use_dE_triplet_as_feature}")
-            dataset = SmilesDataset(csv_path=csv_path, use_dE_triplet_as_feature=use_dE_triplet_as_feature)
+            logging.info(f"[*] Normalize targets: {normalize_targets}")
+            dataset = SmilesDataset(csv_path=csv_path, use_dE_triplet_as_feature=use_dE_triplet_as_feature, normalize_targets=normalize_targets)
             s_dict = dataset.get_idx_split()
             dataset.split_idxs = [s_dict[s] for s in ['train', 'val', 'test']]
             

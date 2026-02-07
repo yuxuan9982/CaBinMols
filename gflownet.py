@@ -17,7 +17,7 @@ import model_block
 from mol_mdp_ext import MolMDPExtended, BlockMoleculeDataExtended
 
 from torch_geometric.graphgym.config import cfg
-from GraphGPS.recover_model import load_trained_model,process
+from GraphGPS.recover_model import load_trained_model, process, load_norm_stats, denormalize
 from torch_geometric.data import Data, Batch
 from metrics import Evaluator
 
@@ -72,6 +72,10 @@ parser.add_argument("--ignore_parents", default=False)
 parser.add_argument("--subtb_lambda", default=0.99, type=float)
 parser.add_argument("--cfg", default='GraphGPS/configs/GPS/a-mols.yaml', type=str)
 parser.add_argument("--ckpt", default='GraphGPS/results/models/model_best.pth', type=str)
+parser.add_argument("--dataset_root", default='GraphGPS/datasets', type=str,
+                    help='数据集根目录，用于加载 target_norm_stats.pkl')
+parser.add_argument("--reward_target_idx", default=0, type=int,
+                    help='多目标 reward 索引: 0=dE_triplet, 1=vbur_ratio, 2=dE_AuCl')
 
 
 @torch.jit.script
@@ -119,19 +123,49 @@ def tb_lambda_loss(P_F, P_B, F, R, traj_lengths, Lambda):
     return total_loss / total_Lambda
 
 class Proxy:
-    def __init__(self, cfg_file, ckpt, device):
+    def __init__(self, cfg_file, ckpt, device, dataset_root='GraphGPS/datasets', reward_target_idx=0):
+        """
+        Args:
+            cfg_file: GraphGPS 配置文件路径 (如 a-mols.yaml)
+            ckpt: 模型 checkpoint 路径
+            device: 推理设备
+            dataset_root: 数据集根目录，用于加载 target_norm_stats.pkl 做反归一化
+            reward_target_idx: 多目标中用于 reward 的索引，0=dE_triplet, 1=vbur_ratio, 2=dE_AuCl
+        """
         self.device = device
-        self.proxy = load_trained_model(cfg_file, ckpt)
+        self.reward_target_idx = reward_target_idx
+        self.proxy = load_trained_model(cfg_file, ckpt, device=device)
         self.proxy.to(device)
+
+        # 加载归一化统计量以便反归一化
+        csv_path = getattr(getattr(cfg, 'dataset', None), 'csv_path', 'NHC-cracker-zzy-v1.csv') or 'NHC-cracker-zzy-v1.csv'
+        self.target_mean, self.target_std = load_norm_stats(root=dataset_root, csv_path=csv_path)
 
     def __call__(self, mols):
         if isinstance(mols, str):
             mols = [mols]
-        graphs = [process(m, self.device) for m in mols]
+        graphs = []
+        for m in mols:
+            try:
+                g = process(m, dE_triplet=None, device=self.device)
+                graphs.append(g)
+            except Exception as e:
+                # 无效 SMILES 等，返回极小 reward
+                return [1e-8] * len(mols) if len(mols) > 1 else 1e-8
+        if not graphs:
+            return [1e-8] * len(mols) if len(mols) > 1 else 1e-8
         batch = Batch.from_data_list(graphs).to(self.device)
         with torch.no_grad():
             outputs = self.proxy(batch)
-        return outputs[0].squeeze().cpu().tolist()
+        # 反归一化到原始尺度
+        outputs = denormalize(outputs, self.target_mean, self.target_std)
+        if torch.is_tensor(outputs):
+            outputs = outputs.cpu().numpy()
+        # 多目标：取 reward_target_idx 对应的标量，或返回列表
+        idx = self.reward_target_idx
+        if len(mols) == 1:
+            return float(outputs[0, idx]) if outputs.ndim > 1 else float(outputs[idx])
+        return [float(outputs[i, idx]) if outputs.ndim > 1 else float(outputs[idx]) for i in range(len(mols))]
 
 class Dataset:
 
@@ -708,7 +742,10 @@ if __name__ == "__main__":
     model.to(args.floatX)
     model.to(device)
 
-    proxy = Proxy('GraphGPS/configs/GPS/a-mols.yaml', args.ckpt, device)
+    print(device)
+    proxy = Proxy(args.cfg, args.ckpt, device,
+                  dataset_root=args.dataset_root,
+                  reward_target_idx=args.reward_target_idx)
 
     train_model_with_proxy(args, model, proxy, dataset, do_save=True)
     print('Done.')
