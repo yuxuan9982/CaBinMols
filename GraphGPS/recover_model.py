@@ -37,9 +37,6 @@ def load_trained_model(cfg_path, checkpoint_path, device=None, num_tasks=None):
     if cfg.accelerator == 'auto':
         cfg.accelerator = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    model = create_model()
-    model.to(cfg.accelerator)
-
     ckpt = torch.load(checkpoint_path, map_location=cfg.accelerator)
     if 'model_state' in ckpt:
         state_dict = ckpt['model_state']
@@ -49,8 +46,11 @@ def load_trained_model(cfg_path, checkpoint_path, device=None, num_tasks=None):
         state_dict = ckpt
 
     assert num_tasks is not None
-    # 设置模型输出维度
+    # 设置模型输出维度（需在 create_model 之前）
     cfg.share.dim_out = num_tasks
+
+    model = create_model()
+    model.to(cfg.accelerator)
     model.load_state_dict(state_dict)
     model.eval()
 
@@ -60,9 +60,12 @@ def load_trained_model(cfg_path, checkpoint_path, device=None, num_tasks=None):
 
 def load_norm_stats(root='datasets', csv_path='NHC-cracker-zzy-v1.csv'):
     """加载 target 归一化统计量，用于反归一化预测结果。"""
-    # processed_dir = datasets/custom/processed
-    folder = os.path.join(root, 'custom')
-    processed_dir = os.path.join(folder, 'processed')
+    # 如果 root 是相对路径，则相对于脚本所在目录（GraphGPS/）
+    if not os.path.isabs(root):
+        script_dir = os.path.dirname(os.path.abspath(__file__))  # GraphGPS/
+        root = os.path.join(script_dir, root)  # GraphGPS/datasets
+    # processed_dir = datasets/processed (去掉 custom 层)
+    processed_dir = os.path.join(root, 'processed')
     norm_stats_path = os.path.join(processed_dir, 'target_norm_stats.pkl')
     if not os.path.exists(norm_stats_path):
         return None, None
@@ -75,7 +78,7 @@ def denormalize(y_pred, target_mean, target_std):
     """将归一化后的预测值反归一化到原始尺度。"""
     if target_mean is None or target_std is None:
         return y_pred
-    y = np.asarray(y_pred)
+    y = np.asarray(y_pred.cpu())
     out = y * target_std + target_mean
     if torch.is_tensor(y_pred):
         return torch.from_numpy(out.astype(np.float64)).to(device=y_pred.device)

@@ -56,3 +56,8 @@ nohup python -u gflownet.py --ckpt GraphGPS/results/models/model_best_v2_merged.
 
 (graphgps) root@yu:/home/yx/codes/CaBinMols/GraphGPS# nohup python -u main.py --cfg configs/GPS/a-mols_with_dE.yaml > output_with_de.log 2>&1 & dE可选配置：use_dE_triplet_as_feature gnn.head
 (graphgps) root@yu:/home/yx/codes/CaBinMols/GraphGPS# nohup python -u main.py --cfg configs/GPS/a-mols.yaml > output_without_de.log 2>&1
+
+
+
+
+注意：recover_model里面调用了load_norm_stats使用了target_norm_stats.pkl

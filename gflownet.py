@@ -72,7 +72,7 @@ parser.add_argument("--ignore_parents", default=False)
 parser.add_argument("--subtb_lambda", default=0.99, type=float)
 parser.add_argument("--cfg", default='GraphGPS/configs/GPS/a-mols.yaml', type=str)
 parser.add_argument("--ckpt", default='GraphGPS/results/models/model_best.pth', type=str)
-parser.add_argument("--dataset_root", default='GraphGPS/datasets', type=str,
+parser.add_argument("--dataset_root", default='datasets', type=str,
                     help='数据集根目录，用于加载 target_norm_stats.pkl')
 parser.add_argument("--reward_target_idx", default=0, type=int,
                     help='多目标 reward 索引: 0=dE_triplet, 1=vbur_ratio, 2=dE_AuCl')
@@ -123,7 +123,7 @@ def tb_lambda_loss(P_F, P_B, F, R, traj_lengths, Lambda):
     return total_loss / total_Lambda
 
 class Proxy:
-    def __init__(self, cfg_file, ckpt, device, dataset_root='GraphGPS/datasets', reward_target_idx=0):
+    def __init__(self, cfg_file, ckpt, device, dataset_root='datasets', reward_target_idx=0):
         """
         Args:
             cfg_file: GraphGPS 配置文件路径 (如 a-mols.yaml)
@@ -134,7 +134,7 @@ class Proxy:
         """
         self.device = device
         self.reward_target_idx = reward_target_idx
-        self.proxy = load_trained_model(cfg_file, ckpt, device=device)
+        self.proxy = load_trained_model(cfg_file, ckpt, device=device,num_tasks=3)
         self.proxy.to(device)
 
         # 加载归一化统计量以便反归一化
@@ -156,7 +156,7 @@ class Proxy:
             return [1e-8] * len(mols) if len(mols) > 1 else 1e-8
         batch = Batch.from_data_list(graphs).to(self.device)
         with torch.no_grad():
-            outputs = self.proxy(batch)
+            outputs = self.proxy(batch)[0]
         # 反归一化到原始尺度
         outputs = denormalize(outputs, self.target_mean, self.target_std)
         if torch.is_tensor(outputs):
