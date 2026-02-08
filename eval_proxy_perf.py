@@ -11,8 +11,8 @@ from gflownet import Proxy
 def main():
     # Arguments for proxy
     cfg_path = 'GraphGPS/configs/GPS/a-mols.yaml'
-    # ckpt_path = 'GraphGPS/results/models/model_best.pth'
-    ckpt_path = 'GraphGPS/results/models/model_best_v2_merged.pth'
+    ckpt_path = 'GraphGPS/results/models/model_best.pth'
+    # ckpt_path = 'GraphGPS/results/models/model_best_v2_merged.pth'
     # ckpt_path = 'model_best.pth'
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
