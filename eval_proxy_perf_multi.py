@@ -57,6 +57,9 @@ def main():
                 preds = preds.cpu().numpy()
             if isinstance(preds, (list, tuple)):
                 preds = np.array(preds)
+            preds = np.asarray(preds)
+            if preds.ndim == 1:
+                preds = preds.reshape(1, -1)
             proxy_preds.append(np.array(preds))
 
     proxy_preds = np.concatenate(proxy_preds, axis=0)
