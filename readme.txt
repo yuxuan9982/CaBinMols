@@ -61,3 +61,21 @@ nohup python -u gflownet.py --ckpt GraphGPS/results/models/model_best_v2_merged.
 
 
 注意：recover_model里面调用了load_norm_stats使用了target_norm_stats.pkl
+
+
+多目标 GFlowNet（MO-GFN）训练示例（偏好条件生成）:
+    nohup python -u gflownet.py \
+        --multi_objective \
+        --num_objectives 3 \
+        --scalarization weighted_geometric \
+        --preference_alpha 1.0 \
+        --objective_signs "1,1,1" \
+        --objective_shifts "0,0,0" \
+        --objective_scales "1,1,1" \
+        --ckpt GraphGPS/results/models/model_best.pth \
+        > output_mogfn.log 2>&1 &
+
+说明:
+    - 训练时每条轨迹会采样一个 Dirichlet 偏好向量 w；
+    - 代理模型输出多目标向量后按 w 做标量化，再用于 GFlowNet reward；
+    - 推荐先根据各目标量纲设置 objective_signs / shifts / scales。

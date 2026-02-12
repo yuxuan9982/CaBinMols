@@ -16,6 +16,7 @@ class GraphAgent(nn.Module):
         print(version)
         if version == 'v5': version = 'v4'
         self.version = version
+        self.nvec = nvec
         self.embeddings = nn.ModuleList([
             nn.Embedding(mdp_cfg.num_true_blocks + 1, nemb),
             nn.Embedding(mdp_cfg.num_stem_types + 1, nemb),
@@ -49,6 +50,11 @@ class GraphAgent(nn.Module):
             graph_data.edge_attr[:, 0][:, :, None] * graph_data.edge_attr[:, 1][:, None, :]
         ).reshape((graph_data.edge_index.shape[1], self.nemb**2))
         out = graph_data.x
+        # Backward-compatible default: if a conditioned version is used but
+        # no conditioning vector is provided, inject zeros.
+        if vec_data is None and self.nvec > 0:
+            num_graphs = int(graph_data.batch.max().item()) + 1
+            vec_data = torch.zeros((num_graphs, self.nvec), device=out.device, dtype=out.dtype)
         if self.version == 'v1' or self.version == 'v3':
             batch_vec = vec_data[graph_data.batch]
             out = self.block2emb(torch.cat([out, batch_vec], 1))
