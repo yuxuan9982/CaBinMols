@@ -23,7 +23,7 @@ def main():
     df = pd.read_csv(data_path)
 
     # Targets to evaluate (multi-objective supported)
-    target_cols = ['vbur_ratio_vbur_vtot'] #todo,这里要proxy先去掉reward_target_idx的逻辑，才能支持多目标
+    target_cols = ['dE_triplet', 'vbur_ratio_vbur_vtot', 'dE_AuCl']
     # Example for multi-objective:
     # target_cols = ['dE_triplet', 'vbur_ratio_vbur_vtot', 'target_c']
 
@@ -42,14 +42,14 @@ def main():
     batch_size = 64
 
     # Load proxy model
-    proxy = Proxy(cfg_path, ckpt_path, device, reward_target_idx=1)
+    proxy = Proxy(cfg_path, ckpt_path, device, reward_target_idx=None, num_tasks=len(target_cols))
 
     # Get proxy prediction in batches
     proxy_preds = []
     with torch.no_grad():
         for i in range(0, len(smiles_list), batch_size):
             batch_smiles = smiles_list[i:i+batch_size]
-            preds = proxy(batch_smiles)
+            preds = proxy(batch_smiles, return_vector=True)
             # Convert torch tensor or numpy array to flat list
             if torch.is_tensor(preds):
                 preds = preds.detach().cpu().numpy()

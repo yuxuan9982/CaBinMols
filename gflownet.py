@@ -76,6 +76,33 @@ parser.add_argument("--dataset_root", default='datasets', type=str,
                     help='数据集根目录，用于加载 target_norm_stats.pkl')
 parser.add_argument("--reward_target_idx", default=0, type=int,
                     help='多目标 reward 索引: 0=dE_triplet, 1=vbur_ratio, 2=dE_AuCl')
+parser.add_argument("--multi_objective", default=False, action='store_true',
+                    help='启用多目标 GFlowNet（按偏好向量条件生成）')
+parser.add_argument("--num_objectives", default=3, type=int,
+                    help='代理模型输出的目标数量')
+parser.add_argument("--preference_alpha", default=1.0, type=float,
+                    help='Dirichlet(alpha) 采样偏好向量时的 alpha')
+parser.add_argument("--scalarization", default='weighted_geometric', type=str,
+                    choices=['weighted_geometric', 'weighted_sum'],
+                    help='多目标标量化方式')
+parser.add_argument("--objective_signs", default='1', type=str,
+                    help='每个目标的优化方向，1=最大化，-1=最小化，如 "1,1,-1"')
+parser.add_argument("--objective_shifts", default='0', type=str,
+                    help='每个目标的平移项（在符号对齐后减去）')
+parser.add_argument("--objective_scales", default='1', type=str,
+                    help='每个目标的缩放项（在符号对齐后除以）')
+
+
+def _parse_float_list(raw_value, expected_len, arg_name):
+    if isinstance(raw_value, (tuple, list, np.ndarray)):
+        values = [float(v) for v in raw_value]
+    else:
+        values = [float(v.strip()) for v in str(raw_value).split(',') if v.strip() != '']
+    if len(values) == 1 and expected_len > 1:
+        values = values * expected_len
+    if len(values) != expected_len:
+        raise ValueError(f'{arg_name} 需要 {expected_len} 个值，实际得到 {len(values)}')
+    return np.asarray(values, dtype=np.float64)
 
 
 @torch.jit.script
@@ -123,7 +150,7 @@ def tb_lambda_loss(P_F, P_B, F, R, traj_lengths, Lambda):
     return total_loss / total_Lambda
 
 class Proxy:
-    def __init__(self, cfg_file, ckpt, device, dataset_root='datasets', reward_target_idx=0):
+    def __init__(self, cfg_file, ckpt, device, dataset_root='datasets', reward_target_idx=0, num_tasks=3):
         """
         Args:
             cfg_file: GraphGPS 配置文件路径 (如 a-mols.yaml)
@@ -131,17 +158,28 @@ class Proxy:
             device: 推理设备
             dataset_root: 数据集根目录，用于加载 target_norm_stats.pkl 做反归一化
             reward_target_idx: 多目标中用于 reward 的索引，0=dE_triplet, 1=vbur_ratio, 2=dE_AuCl
+            num_tasks: 代理模型输出目标数
         """
         self.device = device
         self.reward_target_idx = reward_target_idx
-        self.proxy = load_trained_model(cfg_file, ckpt, device=device,num_tasks=3)
+        self.num_tasks = num_tasks
+        self.proxy = load_trained_model(cfg_file, ckpt, device=device, num_tasks=num_tasks)
         self.proxy.to(device)
 
         # 加载归一化统计量以便反归一化
         csv_path = getattr(getattr(cfg, 'dataset', None), 'csv_path', 'NHC-cracker-zzy-v1.csv') or 'NHC-cracker-zzy-v1.csv'
         self.target_mean, self.target_std = load_norm_stats(root=dataset_root, csv_path=csv_path)
 
-    def __call__(self, mols):
+    def _invalid_output(self, num_mols, return_vector=False):
+        if return_vector:
+            if num_mols == 1:
+                return np.full((self.num_tasks,), 1e-8, dtype=np.float64)
+            return np.full((num_mols, self.num_tasks), 1e-8, dtype=np.float64)
+        if num_mols == 1:
+            return 1e-8
+        return [1e-8] * num_mols
+
+    def __call__(self, mols, return_vector=False):
         if isinstance(mols, str):
             mols = [mols]
         graphs = []
@@ -151,9 +189,9 @@ class Proxy:
                 graphs.append(g)
             except Exception as e:
                 # 无效 SMILES 等，返回极小 reward
-                return [1e-8] * len(mols) if len(mols) > 1 else 1e-8
+                return self._invalid_output(len(mols), return_vector=return_vector)
         if not graphs:
-            return [1e-8] * len(mols) if len(mols) > 1 else 1e-8
+            return self._invalid_output(len(mols), return_vector=return_vector)
         batch = Batch.from_data_list(graphs).to(self.device)
         with torch.no_grad():
             outputs = self.proxy(batch)[0]
@@ -161,11 +199,24 @@ class Proxy:
         outputs = denormalize(outputs, self.target_mean, self.target_std)
         if torch.is_tensor(outputs):
             outputs = outputs.cpu().numpy()
-        # 多目标：取 reward_target_idx 对应的标量，或返回列表
+        outputs = np.asarray(outputs, dtype=np.float64)
+        if outputs.ndim == 1:
+            outputs = outputs.reshape(1, -1)
+
+        if return_vector:
+            if len(mols) == 1:
+                return outputs[0]
+            return outputs
+
+        # 单目标兼容：取 reward_target_idx 对应标量
+        if self.reward_target_idx is None:
+            raise ValueError("reward_target_idx=None 时请使用 return_vector=True 获取多目标输出")
         idx = self.reward_target_idx
+        if idx < 0 or idx >= outputs.shape[1]:
+            raise ValueError(f"reward_target_idx={idx} 越界，模型输出维度为 {outputs.shape[1]}")
         if len(mols) == 1:
-            return float(outputs[0, idx]) if outputs.ndim > 1 else float(outputs[idx])
-        return [float(outputs[i, idx]) if outputs.ndim > 1 else float(outputs[idx]) for i in range(len(mols))]
+            return float(outputs[0, idx])
+        return [float(outputs[i, idx]) for i in range(len(mols))]
 
 class Dataset:
 
@@ -202,9 +253,71 @@ class Dataset:
         self.early_stop_reg = get('early_stop_reg', 0)
         self.last_idx = 0
         self.evaluator = Evaluator(self.reward_norm,self.reward_exp)
+        self.multi_objective = bool(get('multi_objective', False))
+        self.num_objectives = int(get('num_objectives', 1 if not self.multi_objective else 3))
+        self.preference_alpha = max(float(get('preference_alpha', 1.0)), 1e-6)
+        self.scalarization = get('scalarization', 'weighted_geometric')
+        self.objective_cache = {}
+
+        if self.multi_objective:
+            self.objective_signs = _parse_float_list(get('objective_signs', '1'), self.num_objectives, '--objective_signs')
+            self.objective_shifts = _parse_float_list(get('objective_shifts', '0'), self.num_objectives, '--objective_shifts')
+            self.objective_scales = _parse_float_list(get('objective_scales', '1'), self.num_objectives, '--objective_scales')
+            self.objective_scales = np.where(np.abs(self.objective_scales) < 1e-8, 1.0, self.objective_scales)
+        else:
+            self.objective_signs = np.ones(1, dtype=np.float64)
+            self.objective_shifts = np.zeros(1, dtype=np.float64)
+            self.objective_scales = np.ones(1, dtype=np.float64)
 
         self.online_mols = []
         self.max_online_mols = 1000
+
+    def _sample_preference(self):
+        if not self.multi_objective:
+            return None
+        alpha = np.full((self.num_objectives,), self.preference_alpha, dtype=np.float64)
+        return self.train_rng.dirichlet(alpha).astype(np.float64)
+
+    def _get_or_sample_preference(self, mol):
+        if not self.multi_objective:
+            return None
+        pref = getattr(mol, 'preference', None)
+        if pref is None:
+            return self._sample_preference()
+        pref = np.asarray(pref, dtype=np.float64).reshape(-1)
+        if pref.shape[0] != self.num_objectives:
+            return self._sample_preference()
+        pref = np.maximum(pref, 0)
+        denom = pref.sum()
+        if denom <= 0:
+            return self._sample_preference()
+        return pref / denom
+
+    def _scalarize_multi_objective(self, objective_values, preference):
+        objective_values = np.asarray(objective_values, dtype=np.float64).reshape(-1)
+        if objective_values.shape[0] != self.num_objectives:
+            raise ValueError(
+                f'多目标维度不匹配: 期望 {self.num_objectives}, 实际 {objective_values.shape[0]}')
+
+        preference = np.asarray(preference, dtype=np.float64).reshape(-1)
+        if preference.shape[0] != self.num_objectives:
+            raise ValueError(
+                f'偏好向量维度不匹配: 期望 {self.num_objectives}, 实际 {preference.shape[0]}')
+        preference = np.maximum(preference, 1e-12)
+        preference = preference / preference.sum()
+
+        # 方向对齐 + 平移缩放，再用 softplus 保证目标奖励为正数
+        signed = objective_values * self.objective_signs
+        normalized = (signed - self.objective_shifts) / self.objective_scales
+        component_rewards = np.logaddexp(0.0, normalized) + self.R_min
+
+        if self.scalarization == 'weighted_sum':
+            scalar_normscore = float(np.dot(preference, component_rewards))
+        elif self.scalarization == 'weighted_geometric':
+            scalar_normscore = float(np.exp(np.sum(preference * np.log(component_rewards + 1e-20))))
+        else:
+            raise ValueError(f'未知 scalarization: {self.scalarization}')
+        return max(self.R_min, scalar_normscore), component_rewards
 
 
     def _get(self, i, dset):
@@ -225,7 +338,11 @@ class Dataset:
             break
         if not isinstance(m, BlockMoleculeDataExtended):
             m = m[-1]
-        r = m.reward
+        preference = self._get_or_sample_preference(m)
+        if hasattr(m, 'reward') and (not self.multi_objective or getattr(m, 'preference', None) is not None):
+            r = m.reward
+        else:
+            r = self._get_reward(m, preference)
         done = 1
         samples = []
         # a sample is a tuple (parents(s), parent actions, reward(s), s, done)
@@ -233,11 +350,11 @@ class Dataset:
         # so we start with the stop action, unless the molecule is already
         # a "terminal" node (if it has no stems, no actions).
         if len(m.stems):
-            samples.append(((m,), ((-1, 0),), r, m, done))
+            samples.append(((m,), ((-1, 0),), r, m, done, preference))
             r = done = 0
         while len(m.blocks): # and go backwards
             parents, actions = zip(*self.mdp.parents(m))
-            samples.append((parents, actions, r, m, done))
+            samples.append((parents, actions, r, m, done, preference))
             r = done = 0
             m = parents[self.train_rng.randint(len(parents))]
         return samples
@@ -250,6 +367,10 @@ class Dataset:
     def _get_sample_model(self):
         m = BlockMoleculeDataExtended()
         samples = []
+        preference = self._sample_preference()
+        pref_vec = None
+        if self.multi_objective:
+            pref_vec = torch.tensor(preference, device=self._device, dtype=self.floatX).reshape(1, -1)
         max_blocks = self.max_blocks
         if self.early_stop_reg > 0 and np.random.uniform() < self.early_stop_reg:
             early_stop_at = np.random.randint(self.min_blocks, self.max_blocks + 1)
@@ -257,9 +378,11 @@ class Dataset:
             early_stop_at = max_blocks + 1
         trajectory_stats = []
         action_stats = []
+        scalar_normscore = None
+        raw_objectives = None
         for t in range(max_blocks):
             s = self.mdp.mols2batch([self.mdp.mol2repr(m)])
-            s_o, m_o = self.sampling_model(s)
+            s_o, m_o = self.sampling_model(s, pref_vec)
             ## fix from run 330 onwards
             if t < self.min_blocks:
                 m_o = m_o * 0 - 1000 # prevent assigning prob to stop
@@ -297,8 +420,9 @@ class Dataset:
             trajectory_stats.append((q[action].item(), action, torch.logsumexp(q, 0).item()))
             action_stats.append(action)
             if t >= self.min_blocks and action == 0:
-                r = self._get_reward(m)
-                samples.append(((m,), ((-1,0),), r, None, 1))
+                r, raw_objectives, scalar_normscore = self._get_reward(
+                    m, preference=preference, return_info=True)
+                samples.append(((m,), ((-1,0),), r, None, 1, preference))
                 #todo.....
                 break
             else:
@@ -311,23 +435,39 @@ class Dataset:
                     # can't add anything more to this mol so let's make it
                     # terminal. Note that this node's parent isn't just m,
                     # because this is a sink for all parent transitions
-                    r = self._get_reward(m)
+                    r, raw_objectives, scalar_normscore = self._get_reward(
+                        m, preference=preference, return_info=True)
                     if self.ignore_parents:
-                        samples.append(((m_old,), (action,), r, m, 1))
+                        samples.append(((m_old,), (action,), r, m, 1, preference))
                     else:
-                        samples.append((*zip(*self.mdp.parents(m)), r, m, 1))
+                        samples.append((*zip(*self.mdp.parents(m)), r, m, 1, preference))
                     break
                 else:
                     if self.ignore_parents:
-                        samples.append(((m_old,), (action,), 0, m, 0))
+                        samples.append(((m_old,), (action,), 0, m, 0, preference))
                     else:
-                        samples.append((*zip(*self.mdp.parents(m)), 0, m, 0))
+                        samples.append((*zip(*self.mdp.parents(m)), 0, m, 0, preference))
         p = self.mdp.mols2batch([self.mdp.mol2repr(i) for i in samples[-1][0]])
-        qp = self.sampling_model(p, None)
+        p_pref = None
+        if self.multi_objective:
+            p_pref = torch.tensor(
+                np.repeat(preference[None, :], len(samples[-1][0]), axis=0),
+                device=self._device,
+                dtype=self.floatX,
+            )
+        qp = self.sampling_model(p, p_pref)
         qsa_p = self.sampling_model.index_output_by_action(
             p, qp[0], qp[1][:, 0],
             torch.tensor(samples[-1][1], device=self._device).long())
         inflow = torch.logsumexp(qsa_p.flatten(), 0).item()
+
+        if self.multi_objective:
+            m.preference = np.asarray(preference, dtype=np.float64).tolist()
+            if raw_objectives is not None:
+                m.objective_values = np.asarray(raw_objectives, dtype=np.float64).tolist()
+            if scalar_normscore is not None:
+                m.scalarized_normscore = float(scalar_normscore)
+
         self.sampled_mols.append((r, m, action_stats, inflow))
         if self.replay_mode == 'online' or self.replay_mode == 'prioritized':
             m.reward = r
@@ -347,14 +487,40 @@ class Dataset:
                 self.online_mols = self.online_mols[-self.max_online_mols:]
 
 
-    def _get_reward(self, m):
+    def _get_reward(self, m, preference=None, return_info=False):
         rdmol = m.mol
         if rdmol is None:
+            if return_info:
+                return self.R_min, None, self.R_min
             return self.R_min
         smi = m.smiles
-        if smi in self.train_mols_map:
-            return self.train_mols_map[smi].reward
-        return self.r2r(normscore=self.proxy_reward(smi))
+
+        if not self.multi_objective:
+            if smi in self.train_mols_map:
+                reward = self.train_mols_map[smi].reward
+                if return_info:
+                    return reward, None, reward
+                return reward
+            normscore = self.proxy_reward(smi)
+            reward = self.r2r(normscore=normscore)
+            if return_info:
+                return reward, None, normscore
+            return reward
+
+        if preference is None:
+            preference = self._sample_preference()
+
+        if smi in self.objective_cache:
+            objective_values = self.objective_cache[smi]
+        else:
+            objective_values = np.asarray(
+                self.proxy_reward(smi, return_vector=True), dtype=np.float64).reshape(-1)
+            self.objective_cache[smi] = objective_values
+        scalar_normscore, _ = self._scalarize_multi_objective(objective_values, preference)
+        reward = self.r2r(normscore=scalar_normscore)
+        if return_info:
+            return reward, objective_values, scalar_normscore
+        return reward
 
     def sample(self, n):
         if self.replay_mode == 'dataset':
@@ -374,11 +540,12 @@ class Dataset:
         return zip(*samples)
 
     def sample2batch(self, mb):
-        p, a, r, s, d, *o = mb
+        p, a, r, s, d, pref, *o = mb
         mols = (p, s)
         original_s = s
+        parent_counts = [len(pp) for pp in p]
         # The batch index of each parent
-        p_batch = torch.tensor(sum([[i]*len(p) for i,p in enumerate(p)], []),
+        p_batch = torch.tensor(sum([[i] * n_parent for i, n_parent in enumerate(parent_counts)], []),
                                device=self._device).long()
         # Convert all parents and states to repr. Note that this
         # concatenates all the parent lists, which is why we need
@@ -390,7 +557,15 @@ class Dataset:
         # rewards and dones
         r = torch.tensor(r, device=self._device).to(self.floatX)
         d = torch.tensor(d, device=self._device).to(self.floatX)
-        return (p, p_batch, a, r, s, d, mols, original_s, *o)
+
+        pref_p = None
+        pref_s = None
+        if self.multi_objective:
+            pref_np = np.asarray(pref, dtype=np.float64)
+            pref_s = torch.tensor(pref_np, device=self._device).to(self.floatX)
+            repeats = torch.tensor(parent_counts, device=self._device).long()
+            pref_p = torch.repeat_interleave(pref_s, repeats, dim=0)
+        return (p, p_batch, a, r, s, d, mols, original_s, pref_p, pref_s, *o)
 
     def r2r(self, normscore=None):
         normscore = max(self.R_min, normscore)
@@ -442,6 +617,15 @@ class Dataset:
     def evaluate(self, epoch, algo = None):
         self.evaluator.add(self.sampled_mols[self.last_idx:])
         print('update size is ',len(self.sampled_mols)-self.last_idx)
+        if self.multi_objective:
+            recent_obj = [
+                getattr(mol, 'objective_values', None)
+                for (_, mol, _, _) in self.sampled_mols[self.last_idx:]
+                if getattr(mol, 'objective_values', None) is not None
+            ]
+            if len(recent_obj):
+                recent_obj = np.asarray(recent_obj, dtype=np.float64)
+                print('recent objective mean:', recent_obj.mean(axis=0).tolist())
         self.last_idx=len(self.sampled_mols)
         avg_topk_rs, avg_topk_tanimoto, num_modes_above_7_5, num_modes_above_8_0, \
             num_mols_above_7_5, num_mols_above_8_0= self.evaluator.eval_mols()
@@ -460,7 +644,7 @@ class DatasetDirect(Dataset):
         return batch
 
     def sample2batch(self, mb):
-        s, a, r, sp, d, idc, lens = mb
+        s, a, r, sp, d, pref, idc, lens = mb
         mols = (s, sp)
         s = self.mdp.mols2batch([self.mdp.mol2repr(i[0]) for i in s])
         a = torch.tensor(sum(a, ()), device=self._device).long()
@@ -469,17 +653,29 @@ class DatasetDirect(Dataset):
         n = torch.tensor([len(self.mdp.parents(m)) if (m is not None) else 1 for m in sp], device=self._device).to(self.floatX)
         idc = torch.tensor(idc, device=self._device).long()
         lens = torch.tensor(lens, device=self._device).long()
-        return (s, a, r, d, n, mols, idc, lens)
+        pref_s = None
+        if self.multi_objective:
+            pref_np = np.asarray(pref, dtype=np.float64)
+            pref_s = torch.tensor(pref_np, device=self._device).to(self.floatX)
+        return (s, a, r, d, n, mols, idc, lens, pref_s)
 
 def make_model(args, mdp, out_per_mol=1):
     if args.repr_type == 'block_graph':
+        model_version = args.model_version
+        nvec = 0
+        if args.multi_objective:
+            nvec = args.num_objectives
+            # v4/v5 不消费 vec_data；多目标条件生成时强制切到支持向量条件的版本。
+            if model_version in ['v4', 'v5']:
+                print('[MO-GFN] model_version v4/v5 不支持条件向量，自动切换到 v3。')
+                model_version = 'v3'
         model = model_block.GraphAgent(nemb=args.nemb,
-                                       nvec=0,
+                                       nvec=nvec,
                                        out_per_stem=mdp.num_blocks,
                                        out_per_mol=out_per_mol,
                                        num_conv_steps=args.num_conv_steps,
                                        mdp_cfg=mdp,
-                                       version=args.model_version)
+                                       version=model_version)
     else:
         raise ValueError('reimplement me')
     return model
@@ -580,18 +776,18 @@ def train_model_with_proxy(args, model, proxy, dataset, num_steps=None, do_save=
 
             
         if args.objective == 'fm':
-            p, pb, a, r, s, d, mols, original_s = minibatch
+            p, pb, a, r, s, d, mols, original_s, pref_p, pref_s = minibatch
             # Since we sampled 'mbsize' trajectories, we're going to get
             # roughly mbsize * H (H is variable) transitions
             ntransitions = r.shape[0]
             # state outputs
             if tau > 0:
                 with torch.no_grad():
-                    stem_out_s, mol_out_s = target_model(s, None)
+                    stem_out_s, mol_out_s = target_model(s, pref_s)
             else:
-                stem_out_s, mol_out_s = model(s, None)
+                stem_out_s, mol_out_s = model(s, pref_s)
             # parents of the state outputs
-            stem_out_p, mol_out_p = model(p, None)
+            stem_out_p, mol_out_p = model(p, pref_p)
             # index parents by their corresponding actions
             qsa_p = model.index_output_by_action(p, stem_out_p, mol_out_p[:, 0], a)
             # then sum the parents' contribution, this is the inflowW
@@ -656,8 +852,8 @@ def train_model_with_proxy(args, model, proxy, dataset, num_steps=None, do_save=
                 torch.nn.utils.clip_grad_value_(model.parameters(),
                                                 args.clip_grad)
         else:
-            s, a, r, d, n, mols, idc, lens, *o = minibatch
-            stem_out_s, mol_out_s = model(s, None)
+            s, a, r, d, n, mols, idc, lens, pref_s, *o = minibatch
+            stem_out_s, mol_out_s = model(s, pref_s)
             # index parents by their corresponding actions
             logits = -model.action_negloglikelihood(s, a, 0, stem_out_s, mol_out_s)
             tzeros = torch.zeros(idc[-1]+1, device=device, dtype=args.floatX)
@@ -728,6 +924,9 @@ if __name__ == "__main__":
         args.floatX = torch.float
     else:
         args.floatX = torch.double
+
+    if args.num_objectives <= 0:
+        raise ValueError("--num_objectives 必须 > 0")
         
     if args.objective == 'fm':
         dataset = Dataset(args, bpath_core, bpath_sub, device, floatX=args.floatX)
@@ -743,9 +942,12 @@ if __name__ == "__main__":
     model.to(device)
 
     print(device)
+    proxy_num_tasks = args.num_objectives if args.multi_objective else max(3, args.reward_target_idx + 1)
+    proxy_target_idx = None if args.multi_objective else args.reward_target_idx
     proxy = Proxy(args.cfg, args.ckpt, device,
                   dataset_root=args.dataset_root,
-                  reward_target_idx=args.reward_target_idx)
+                  reward_target_idx=proxy_target_idx,
+                  num_tasks=proxy_num_tasks)
 
     train_model_with_proxy(args, model, proxy, dataset, do_save=True)
     print('Done.')
