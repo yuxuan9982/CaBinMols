@@ -76,7 +76,7 @@ parser.add_argument("--dataset_root", default='datasets', type=str,
                     help='数据集根目录，用于加载 target_norm_stats.pkl')
 parser.add_argument("--reward_target_idx", default=0, type=int,
                     help='多目标 reward 索引: 0=dE_triplet, 1=vbur_ratio, 2=dE_AuCl')
-parser.add_argument("--multi_objective", default=False, action='store_true',
+parser.add_argument("--multi_objective", default=True, action='store_true',
                     help='启用多目标 GFlowNet（按偏好向量条件生成）')
 parser.add_argument("--num_objectives", default=3, type=int,
                     help='代理模型输出的目标数量')
@@ -627,11 +627,16 @@ class Dataset:
                 recent_obj = np.asarray(recent_obj, dtype=np.float64)
                 print('recent objective mean:', recent_obj.mean(axis=0).tolist())
         self.last_idx=len(self.sampled_mols)
-        avg_topk_rs, avg_topk_tanimoto, num_modes_above_7_5, num_modes_above_8_0, \
-            num_mols_above_7_5, num_mols_above_8_0= self.evaluator.eval_mols()
+        (
+            avg_topk_rs,
+            avg_topk_tanimoto,
+            num_obj_modes_3_4,
+            num_obj_modes_4_0,
+        ) = self.evaluator.eval_mols()
         print(f"state_visited={len(self.sampled_mols)};"
-                f"num_modes R>7.5={num_modes_above_7_5};num_mols_above_7_5={num_mols_above_7_5};"
-                f"num_modes R>8={num_modes_above_8_0};num_mols_above_8_0={num_mols_above_8_0};reward_topk:{avg_topk_rs};avg_topk_tanimoto:{avg_topk_tanimoto}")    
+                f"num_modes obj(dim1>3.4,dim2>0.1,dim3>-4)={num_obj_modes_3_4};"
+                f"num_modes obj(dim1>4.0,dim2>0.1,dim3>-4)={num_obj_modes_4_0};"
+                f"reward_topk:{avg_topk_rs};avg_topk_tanimoto:{avg_topk_tanimoto}")    
         # self.evaluator.verify_csv_pkl_match()
 
 

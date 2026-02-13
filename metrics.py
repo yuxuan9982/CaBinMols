@@ -1,11 +1,13 @@
 import gzip
 import pickle
+import json
 import rdkit.DataStructs
 from rdkit import Chem
 import numpy as np
 from rdkit.Chem.Scaffolds import MurckoScaffold
 import heapq
 import csv
+from datetime import datetime
 
 def get_tanimoto_pairwise(mols):
     fps = [Chem.RDKFingerprint(i.mol) for i in mols]
@@ -14,67 +16,6 @@ def get_tanimoto_pairwise(mols):
         pairwise_sim.extend(rdkit.DataStructs.BulkTanimotoSimilarity(fps[i], fps[i+1:]))
     return pairwise_sim
 
-
-class NumModes:
-    def __init__(self, reward_exp, reward_norm, reward_thr=8, tanimoto_thr=0.7):
-        self.reward_exp = reward_exp
-        self.reward_norm = reward_norm
-        self.reward_thr = reward_thr
-        self.tanimoto_thr = tanimoto_thr
-        self.modes = []
-        self.max_reward = -1000
-    def __call__(self, batch):
-        candidates = []
-        for some in batch:
-            reward, mol = some[0], some[1]
-            reward = (reward ** (1/self.reward_exp)) * self.reward_norm
-            if reward > self.max_reward: 
-                self.max_reward = reward
-            if reward > self.reward_thr:
-                candidates.append(mol)
-        if len(candidates) > 0:
-            # add one mode if needed
-            if len(self.modes)==0: 
-                self.modes.append(Chem.RDKFingerprint(candidates[0].mol))
-            for mol in candidates:
-                fp = Chem.RDKFingerprint(mol.mol)
-                sims = np.asarray(rdkit.DataStructs.BulkTanimotoSimilarity(fp, self.modes))
-                if all(sims < self.tanimoto_thr):
-                    self.modes.append(fp)
-        return self.max_reward, len(self.modes)
-    def add(self, mols):
-        candidates = []
-        reward, mol = mols[0], mols[1]
-        if reward > self.max_reward: 
-            self.max_reward = reward
-        if reward > self.reward_thr:
-            candidates.append(mol)
-        if len(candidates) > 0:
-            if len(self.modes)==0: 
-                self.modes.append(Chem.RDKFingerprint(candidates[0].mol))
-            for mol in candidates:
-                fp = Chem.RDKFingerprint(mol.mol)
-                sims = np.asarray(rdkit.DataStructs.BulkTanimotoSimilarity(fp, self.modes))
-                if all(sims < self.tanimoto_thr):
-                    self.modes.append(fp)
-    def get_modes(self):
-        return len(self.modes)
-
-
-# class Top1000:
-#     def __init__(self):
-#         self.min_heap = []  # 最小堆，存储前100大的元素
-#         self.size = 1000
-
-#     def add(self, num):
-#         if len(self.min_heap) < self.size:
-#             heapq.heappush(self.min_heap, num)
-#         else:
-#             if num > self.min_heap[0]:
-#                 heapq.heapreplace(self.min_heap, num)
-
-#     def get_top_1000(self):
-#         return sorted(self.min_heap, reverse=True)
 class _HeapItem:
     """Wrapper class to ensure only the reward (r) is compared."""
     def __init__(self, r, m):
@@ -103,48 +44,35 @@ class Top1000:
         sorted_items = sorted(self.min_heap, key=lambda x: -x.r)
         return [(item.r, item.m) for item in sorted_items]
 
+class ObjectiveModes:
+    def __init__(self, obj1_thr, obj2_thr=0.1, obj3_thr=-4.0, tanimoto_thr=0.7):
+        self.obj1_thr = float(obj1_thr)
+        self.obj2_thr = float(obj2_thr)
+        self.obj3_thr = float(obj3_thr)
+        self.tanimoto_thr = float(tanimoto_thr)
+        self.modes = []
 
-# def eval_mols(mols, reward_norm=8, reward_exp=10, algo="gfn"):
-#     def r2r_back(r):
-#         return r ** (1. / reward_exp) * reward_norm
-    
-#     numModes_above_7_5 = NumModes(reward_exp=reward_exp, reward_norm=reward_norm, reward_thr=7.5)
-#     _, num_modes_above_7_5 = numModes_above_7_5(mols)
-#     numModes_above_8_0 = NumModes(reward_exp=reward_exp, reward_norm=reward_norm, reward_thr=8.)
-#     _, num_modes_above_8_0 = numModes_above_8_0(mols)
+    def _hit(self, objective_values):
+        if objective_values is None:
+            return False
+        values = np.asarray(objective_values, dtype=np.float64).reshape(-1)
+        if values.shape[0] < 3:
+            return False
+        return (values[0] > self.obj1_thr) and (values[1] > self.obj2_thr) and (values[2] > self.obj3_thr)
 
-    
+    def add(self, mol, objective_values):
+        if not self._hit(objective_values):
+            return
+        fp = Chem.RDKFingerprint(mol.mol)
+        if len(self.modes) == 0:
+            self.modes.append(fp)
+            return
+        sims = np.asarray(rdkit.DataStructs.BulkTanimotoSimilarity(fp, self.modes))
+        if all(sims < self.tanimoto_thr):
+            self.modes.append(fp)
 
-#     top_ks = [10, 100, 1000]
-#     avg_topk_rs = {}
-#     avg_topk_tanimoto = {}
-#     mol_r_map = {}
-
-#     for i in range(len(mols)):
-#         if algo == 'gfn':
-#             r, m, trajectory_stats, inflow = mols[i]
-#         else:
-#             r, m = mols[i]
-#         r = r2r_back(r)
-#         mol = Chem.MolFromSmiles(m.smiles)  # 使用你感兴趣的分子的SMILES表示
-#         scaffold = MurckoScaffold.GetScaffoldForMol(mol)  # 获取Bemis-Murcko骨架
-#         scaffold_smiles = Chem.MolToSmiles(scaffold)
-#         mol_r_map[scaffold_smiles] = r
-    
-#     unique_rs = list(mol_r_map.values())
-#     unique_rs = sorted(unique_rs, reverse=True)
-#     unique_rs = np.array(unique_rs)
-#     num_above_7_5 = np.sum(unique_rs > 7.5) # just a integer
-#     num_above_8_0 = np.sum(unique_rs > 8.0)
-
-#     sorted_mol_r_map = sorted(mol_r_map.items(), key=lambda kv: kv[1], reverse=True)
-#     for top_k_idx, top_k in enumerate(top_ks):
-#         avg_topk_rs[top_k] = np.mean(unique_rs[:top_k])
-        
-#         topk_mols = [mol for (mol, r) in sorted_mol_r_map[:top_k]]
-#         avg_topk_tanimoto[top_k] = np.mean(get_tanimoto_pairwise(topk_mols))
-
-#     return avg_topk_rs, avg_topk_tanimoto, num_modes_above_7_5, num_modes_above_8_0, num_above_7_5, num_above_8_0
+    def get_modes(self):
+        return len(self.modes)
 
 def verify_csv_pkl_files(csv_path="molecule_results_n.csv", pkl_path="molecule_objects.pkl.gz", verbose=True):
     """
@@ -217,22 +145,33 @@ def verify_csv_pkl_files(csv_path="molecule_results_n.csv", pkl_path="molecule_o
 
 class Evaluator:
     def __init__(self,reward_norm=8, reward_exp=10, algo="gfn"):
-        self.numModes_above_7_5=NumModes(reward_exp=reward_exp, reward_norm=reward_norm, reward_thr=3.5)
-        self.numModes_above_8_0=NumModes(reward_exp=reward_exp, reward_norm=reward_norm, reward_thr=4.0)
         self.top_ks = [10, 100, 1000]
         self.avg_topk_tanimoto = {}
         self.mol_r_map = {}
         self.reward_norm=reward_norm
         self.reward_exp=reward_exp
         self.algo=algo
-        self.map_cnt_7_5=0
-        self.map_cnt_8_0=0
         self.top1000 = Top1000()
+        self.obj_modes_thr_3_4 = ObjectiveModes(obj1_thr=3.4, obj2_thr=0.1, obj3_thr=-4.0)
+        self.obj_modes_thr_4_0 = ObjectiveModes(obj1_thr=4.0, obj2_thr=0.1, obj3_thr=-4.0)
         with open("molecule_results_n.csv", "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow(["smiles", "reward", "core"])
+            writer.writerow([
+                "smiles",
+                "reward",
+                "core",
+                "mol_file_idx",
+                "selected_alpha",
+                "objective_dim1",
+                "objective_dim2",
+                "objective_dim3",
+                "hit_obj_mode_cond_3_4",
+                "hit_obj_mode_cond_4_0",
+            ])
         # 初始化分子对象保存文件（使用gzip压缩以减小文件大小）
-        self.mol_file = gzip.open("molecule_objects.pkl.gz", "wb")
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.mol_file_path = f"molecule_objects_{ts}.pkl.gz"
+        self.mol_file = gzip.open(self.mol_file_path, "wb")
         self.mol_file_index = 0  # 用于记录写入顺序，方便与CSV对应
         self.avg_core = [0 for _ in range(32)]
         self.cnt_core = [0 for _ in range(32)]
@@ -252,19 +191,49 @@ class Evaluator:
 
             if scaffold_smiles not in self.mol_r_map or self.mol_r_map[scaffold_smiles]<r:
                 self.mol_r_map[scaffold_smiles] = r
-                if r>3.5:self.map_cnt_7_5+=1
-                if r>4.0:self.map_cnt_8_0+=1
                 self.top1000.add((r,m))
-                
-            self.numModes_above_7_5.add((r,m))
-            self.numModes_above_8_0.add((r,m))
+
+            objective_values = getattr(m, "objective_values", None)
+            self.obj_modes_thr_3_4.add(m, objective_values)
+            self.obj_modes_thr_4_0.add(m, objective_values)
+
+            selected_alpha = ""
+            dim1 = ""
+            dim2 = ""
+            dim3 = ""
+            hit_3_4 = 0
+            hit_4_0 = 0
+            preference = getattr(m, "preference", None)
+            if preference is not None:
+                pref_np = np.asarray(preference, dtype=np.float64).reshape(-1)
+                if pref_np.shape[0] > 0:
+                    selected_alpha = json.dumps(pref_np.tolist())
+            if objective_values is not None:
+                obj_np = np.asarray(objective_values, dtype=np.float64).reshape(-1)
+                if obj_np.shape[0] >= 3:
+                    dim1 = float(obj_np[0])
+                    dim2 = float(obj_np[1])
+                    dim3 = float(obj_np[2])
+                    hit_3_4 = int((dim1 > 3.4) and (dim2 > 0.1) and (dim3 > -4.0))
+                    hit_4_0 = int((dim1 > 4.0) and (dim2 > 0.1) and (dim3 > -4.0))
 
             assert action_states[0]-853 >=0 and action_states[0]-853 <32
             self.avg_core[action_states[0]-853] += r
             self.cnt_core[action_states[0]-853] += 1
             with open("molecule_results_n.csv", "a", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
-                writer.writerow([m.smiles, r, action_states[0]-853])
+                writer.writerow([
+                    m.smiles,
+                    r,
+                    action_states[0]-853,
+                    self.mol_file_index,
+                    selected_alpha,
+                    dim1,
+                    dim2,
+                    dim3,
+                    hit_3_4,
+                    hit_4_0,
+                ])
             # 同时保存分子对象到pickle文件（使用gzip压缩）
             pickle.dump((self.mol_file_index, m), self.mol_file)
             self.mol_file.flush()  # 确保数据立即写入，避免丢失
@@ -279,26 +248,31 @@ class Evaluator:
             topk_mols = [mol for (r, mol) in top_lst[:top_k]]
             avg_topk_tanimoto[top_k] = np.mean(get_tanimoto_pairwise(topk_mols))
             avg_topk_rs[top_k] = np.mean(num_values[:top_k])
-        num_modes_above_7_5= self.numModes_above_7_5.get_modes()
-        num_modes_above_8_0= self.numModes_above_8_0.get_modes()
-        num_above_7_5 = self.map_cnt_7_5
-        num_above_8_0 = self.map_cnt_8_0
+        num_obj_modes_3_4 = self.obj_modes_thr_3_4.get_modes()
+        num_obj_modes_4_0 = self.obj_modes_thr_4_0.get_modes()
         print("Average reward per core:", [avg / cnt if cnt > 0 else 0 for avg, cnt in zip(self.avg_core, self.cnt_core)])
         print("Visit time per core:", [cnt for cnt in self.cnt_core])
-        return avg_topk_rs, avg_topk_tanimoto, num_modes_above_7_5, num_modes_above_8_0, num_above_7_5, num_above_8_0
+        return (
+            avg_topk_rs,
+            avg_topk_tanimoto,
+            num_obj_modes_3_4,
+            num_obj_modes_4_0,
+        )
     
-    def verify_csv_pkl_match(self, csv_path="molecule_results_n.csv", pkl_path="molecule_objects.pkl.gz", verbose=True):
+    def verify_csv_pkl_match(self, csv_path="molecule_results_n.csv", pkl_path=None, verbose=True):
         """
         验证CSV文件和pickle文件是否对应（调用独立验证函数）
         
         Args:
             csv_path: CSV文件路径
-            pkl_path: pickle文件路径
+            pkl_path: pickle文件路径（默认使用本次运行写出的pkl文件）
             verbose: 是否打印详细信息
             
         Returns:
             bool: 如果所有记录都匹配返回True，否则返回False
         """
+        if pkl_path is None:
+            pkl_path = getattr(self, "mol_file_path", "molecule_objects.pkl.gz")
         return verify_csv_pkl_files(csv_path, pkl_path, verbose)
     
     def close(self):
