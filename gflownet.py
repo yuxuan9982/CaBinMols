@@ -37,7 +37,7 @@ parser.add_argument("--opt_epsilon", default=1e-8, type=float)
 parser.add_argument("--nemb", default=256, help="#hidden", type=int)
 parser.add_argument("--min_blocks", default=2, type=int)
 parser.add_argument("--max_blocks", default=8, type=int)
-parser.add_argument("--num_iterations", default=250000, type=int)
+parser.add_argument("--num_iterations", default=25000, type=int)
 parser.add_argument("--num_conv_steps", default=10, type=int)
 parser.add_argument("--log_reg_c", default=2.5e-5, type=float)
 parser.add_argument("--reward_exp", default=5, type=float)
@@ -47,7 +47,7 @@ parser.add_argument("--R_min", default=0.1, type=float)
 parser.add_argument("--leaf_coef", default=10, type=float)
 parser.add_argument("--clip_grad", default=0, type=float)
 parser.add_argument("--clip_loss", default=0, type=float)
-parser.add_argument("--replay_mode", default='prioritized', type=str)
+parser.add_argument("--replay_mode", default='dataset', type=str)
 parser.add_argument("--bootstrap_tau", default=0, type=float)
 parser.add_argument("--weight_decay", default=0, type=float)
 parser.add_argument("--random_action_prob", default=0.05, type=float)
@@ -80,8 +80,8 @@ parser.add_argument("--multi_objective", default=True, action='store_true',
                     help='启用多目标 GFlowNet（按偏好向量条件生成）')
 parser.add_argument("--num_objectives", default=3, type=int,
                     help='代理模型输出的目标数量')
-parser.add_argument("--preference_alpha", default=1.0, type=float,
-                    help='Dirichlet(alpha) 采样偏好向量时的 alpha')
+parser.add_argument("--preference_alpha", default='1.0,0.2,0.2', type=str,
+                    help='Dirichlet(alpha) 采样偏好向量时的 alpha；可用逗号分隔为每个目标单独设置')
 parser.add_argument("--scalarization", default='weighted_geometric', type=str,
                     choices=['weighted_geometric', 'weighted_sum'],
                     help='多目标标量化方式')
@@ -255,7 +255,14 @@ class Dataset:
         self.evaluator = Evaluator(self.reward_norm,self.reward_exp)
         self.multi_objective = bool(get('multi_objective', False))
         self.num_objectives = int(get('num_objectives', 1 if not self.multi_objective else 3))
-        self.preference_alpha = max(float(get('preference_alpha', 1.0)), 1e-6)
+        raw_preference_alpha = get('preference_alpha', '1.0')
+        if self.multi_objective:
+            self.preference_alpha = _parse_float_list(
+                raw_preference_alpha, self.num_objectives, '--preference_alpha')
+            self.preference_alpha = np.maximum(self.preference_alpha, 1e-6)
+        else:
+            alpha_scalar = _parse_float_list(raw_preference_alpha, 1, '--preference_alpha')[0]
+            self.preference_alpha = max(float(alpha_scalar), 1e-6)
         self.scalarization = get('scalarization', 'weighted_geometric')
         self.objective_cache = {}
 
@@ -275,7 +282,10 @@ class Dataset:
     def _sample_preference(self):
         if not self.multi_objective:
             return None
-        alpha = np.full((self.num_objectives,), self.preference_alpha, dtype=np.float64)
+        if np.isscalar(self.preference_alpha):
+            alpha = np.full((self.num_objectives,), self.preference_alpha, dtype=np.float64)
+        else:
+            alpha = np.asarray(self.preference_alpha, dtype=np.float64).reshape(-1)
         return self.train_rng.dirichlet(alpha).astype(np.float64)
 
     def _get_or_sample_preference(self, mol):
@@ -482,9 +492,14 @@ class Dataset:
             if len(self.online_mols) > self.max_online_mols:
                 self.online_mols = sorted(self.online_mols)[max(int(0.05 * self.max_online_mols), 1):]
         elif self.replay_mode == 'prioritized':
-            self.online_mols.append((abs(inflow - np.log(r)), m))
-            if len(self.online_mols) > self.max_online_mols * 1.1:
-                self.online_mols = self.online_mols[-self.max_online_mols:]
+            r = r + self.train_rng.normal() * 0.01
+            if len(self.online_mols) < self.max_online_mols or r > self.online_mols[0][0]:
+                self.online_mols.append((r, m))
+            if len(self.online_mols) > self.max_online_mols:
+                self.online_mols = sorted(self.online_mols)[max(int(0.05 * self.max_online_mols), 1):]
+            # self.online_mols.append((abs(inflow - np.log(r)), m))
+            # if len(self.online_mols) > self.max_online_mols * 1.1:
+            #     self.online_mols = self.online_mols[-self.max_online_mols:]
 
 
     def _get_reward(self, m, preference=None, return_info=False):
@@ -524,8 +539,8 @@ class Dataset:
 
     def sample(self, n):
         if self.replay_mode == 'dataset':
-            eidx = self.train_rng.randint(0, len(self.train_mols), n)
-            samples = sum((self._get(i, self.train_mols) for i in eidx), [])
+            eidx = self.train_rng.randint(0, len(self.online_mols)+1, n)
+            samples = sum((self._get(i, self.online_mols) for i in eidx), [])
         elif self.replay_mode == 'online':
             eidx = self.train_rng.randint(0, max(1,len(self.online_mols)), n)
             samples = sum((self._get(i, self.online_mols) for i in eidx), [])

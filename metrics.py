@@ -1,6 +1,9 @@
 import gzip
 import pickle
 import json
+import os
+import argparse
+import sys
 import rdkit.DataStructs
 from rdkit import Chem
 import numpy as np
@@ -87,50 +90,79 @@ def verify_csv_pkl_files(csv_path="molecule_results_n.csv", pkl_path="molecule_o
         bool: 如果所有记录都匹配返回True，否则返回False
     """
     try:
-        # 读取CSV文件
-        csv_smiles = []
-        with open(csv_path, "r", encoding="utf-8") as f:
-            reader = csv.reader(f)
-            next(reader)  # 跳过表头
-            for row in reader:
-                if len(row) >= 1:
-                    csv_smiles.append(row[0])  # smiles在第一列
-        
-        # 读取pickle文件
-        pkl_data = []
-        with gzip.open(pkl_path, "rb") as f:
+        mismatches = []
+        max_show = 10
+        n_checked = 0
+
+        with open(csv_path, "r", encoding="utf-8", newline="") as cf, gzip.open(pkl_path, "rb") as pf:
+            reader = csv.reader(cf)
+            try:
+                next(reader)  # 跳过表头
+            except StopIteration:
+                if verbose:
+                    print("❌ CSV为空或缺少表头")
+                return False
+
+            csv_exhausted = False
             while True:
                 try:
-                    index, mol_obj = pickle.load(f)
-                    pkl_data.append((index, mol_obj.smiles))
+                    index, mol_obj = pickle.load(pf)
                 except EOFError:
                     break
-        
-        # 验证数量是否一致
-        if len(csv_smiles) != len(pkl_data):
-            if verbose:
-                print(f"❌ 数量不匹配: CSV有{len(csv_smiles)}行, pickle有{len(pkl_data)}个对象")
-            return False
-        
-        # 验证每个索引和smiles是否匹配
-        mismatches = []
-        for i, (index, pkl_smiles) in enumerate(pkl_data):
-            if index != i:
-                mismatches.append(f"索引不匹配: 期望{i}, 实际{index}")
-            if i < len(csv_smiles) and csv_smiles[i] != pkl_smiles:
-                mismatches.append(f"第{i}行: CSV smiles='{csv_smiles[i]}', pickle smiles='{pkl_smiles}'")
-        
+
+                # 获取CSV对应行
+                try:
+                    row = next(reader)
+                except StopIteration:
+                    csv_exhausted = True
+                    mismatches.append(f"数量不匹配: pickle还有数据(当前index={index})但CSV已结束")
+                    break
+
+                # smiles在第一列
+                csv_smiles = row[0] if len(row) >= 1 else ""
+                pkl_smiles = getattr(mol_obj, "smiles", None)
+
+                if index != n_checked:
+                    mismatches.append(f"索引不匹配: 期望{n_checked}, 实际{index}")
+
+                # 如果CSV有 mol_file_idx（第4列），也顺便核对一下
+                if len(row) >= 4:
+                    try:
+                        csv_idx = int(row[3])
+                        if csv_idx != index:
+                            mismatches.append(f"mol_file_idx不匹配: 第{n_checked}行 CSV mol_file_idx={csv_idx}, pickle index={index}")
+                    except Exception:
+                        # 非整数就不校验
+                        pass
+
+                if csv_smiles != pkl_smiles:
+                    mismatches.append(f"第{n_checked}行: CSV smiles='{csv_smiles}', pickle smiles='{pkl_smiles}'")
+
+                n_checked += 1
+
+                # 只保留前 max_show 个 mismatch 文本，避免内存膨胀
+                if len(mismatches) > max_show:
+                    mismatches = mismatches[:max_show]
+
+            # pickle读完后，检查CSV是否还有剩余有效行
+            if not csv_exhausted:
+                for extra_row in reader:
+                    if len(extra_row) == 0:
+                        continue
+                    if len(extra_row) >= 1 and str(extra_row[0]).strip() == "":
+                        continue
+                    mismatches.append(f"数量不匹配: CSV还有额外行(从第{n_checked}行开始)但pickle已结束")
+                    break
+
         if mismatches:
             if verbose:
-                print(f"❌ 发现{len(mismatches)}个不匹配:")
-                for mismatch in mismatches[:10]:  # 只显示前10个
+                print(f"❌ 验证失败: 已检查{n_checked}条，发现不匹配(仅展示前{max_show}条):")
+                for mismatch in mismatches[:max_show]:
                     print(f"  - {mismatch}")
-                if len(mismatches) > 10:
-                    print(f"  ... 还有{len(mismatches)-10}个不匹配")
             return False
-        
+
         if verbose:
-            print(f"✅ 验证通过: {len(csv_smiles)}条记录全部匹配")
+            print(f"✅ 验证通过: {n_checked}条记录全部匹配")
         return True
         
     except FileNotFoundError as e:
@@ -287,11 +319,37 @@ class Evaluator:
 
 
 # 使用示例：
-# if __name__ == "__main__":
-#     # 方式1: 使用独立函数验证
-#     verify_csv_pkl_files("molecule_results_n.csv", "molecule_objects.pkl.gz")
-#     
-#     # 方式2: 使用Evaluator实例验证
-#     evaluator = Evaluator()
-#     evaluator.verify_csv_pkl_match()
-#     evaluator.close()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Verify molecule_results CSV matches molecule_objects pickle stream.")
+    parser.add_argument(
+        "--csv",
+        default="molecule_results_n.csv",
+        help="CSV path (default: molecule_results_n.csv)",
+    )
+    parser.add_argument(
+        "--pkl",
+        default="molecule_objects_20260213_151908.pkl.gz",
+        help="Pickle.gz path (default: molecule_objects_20260213_151908.pkl.gz)",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Do not print details; rely on exit code only.",
+    )
+    args = parser.parse_args()
+    print(args.pkl,args.csv)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    def _resolve(p: str) -> str:
+        if os.path.exists(p):
+            return p
+        candidate = os.path.join(script_dir, p)
+        if os.path.exists(candidate):
+            return candidate
+        return p
+
+    csv_path = _resolve(args.csv)
+    pkl_path = _resolve(args.pkl)
+
+    ok = verify_csv_pkl_files(csv_path=csv_path, pkl_path=pkl_path, verbose=(not args.quiet))
+    sys.exit(0 if ok else 1)
