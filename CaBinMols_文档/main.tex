@@ -11,11 +11,70 @@
 
 在任意状态 $s_t$，动作空间由两类操作组成：\textit{add} 与 \textit{combine}。其中，\textit{add} 表示在选定位点接入一个 substructure；新接入片段可引入额外可反应位点，从而支持后续扩展。\textit{combine} 表示连接两个已有可反应位点（可来自 core 或不同 substructure），用于形成更紧凑的拓扑结构。最终，包含单一 core 且任意数量 substructure 的分子作为有效终止状态。
 
-由于真实评估函数(oracle)的评估成本非常高，我们使用代理模型来评估候选分子的性质。代理模型我们使用GraphGPS，该模型是一个基于图神经网络的代理模型，能够预测分子的性质。我们将其扩展到了多目标结构预测。此外，考虑到卡宾分子性质的特殊性：dE_triplet这个性质与其他性质之间存在一定的相关性，我们对其结构进行了调整，。
+由于真实评估函数（oracle）的计算代价较高，我们以代理模型 $\hat{f}_{\phi}$ 近似真实性质映射 $f$，并将其用于候选分子的快速筛选。对任意分子图 $G=(V,E)$，代理模型的输入由两部分组成：其一是原子/键构成的拓扑与化学特征；其二是图级全局标量 $u=dE\_{triplet}$。模型首先通过图编码器得到结构表示 $\mathbf{h}_G=\mathrm{Enc}_{\phi}(G)$，再将 $\mathbf{h}_G$ 与 $u$ 融合并输入回归层，输出三维性质预测向量
+\[
+\hat{\mathbf{y}}=\hat{f}_{\phi}(G,u)=\big[\hat{y}_1,\hat{y}_2,\hat{y}_3\big]
+=\big[\widehat{dE\_{triplet}},\widehat{vbur\_ratio\_vbur\_vtot},\widehat{dE\_{AuCl}}\big].
+\]
+训练阶段采用多目标联合回归，记真实标签为 $\mathbf{y}=[y_1,y_2,y_3]$，则优化目标写为
+\[
+\mathcal{L}_{proxy}=\sum_{k=1}^{3}\lambda_k\,\ell\!\left(\hat{y}_k,y_k\right),
+\]
+其中 $\ell(\cdot,\cdot)$ 为回归损失（实验中使用 MAE），$\lambda_k$ 为各性质权重。该设计的核心动机是：$dE\_{triplet}$ 不仅是预测目标，同时也可作为描述电子结构状态的先验信号，与其余目标存在耦合关系；将其显式注入图级表示后，模型可在共享表示空间中学习跨目标相关性，从而提高多目标预测的稳定性与样本效率。推理时，代理模型输出 $\hat{\mathbf{y}}$ 作为后续多目标打分与 Pareto 筛选的依据。
 
 
-\subsection{多目标生成式模型}
-我们采用多目标生成范式，将性质优化表示为向量奖励 $\mathbf{r}(x)=[r_1(x),\dots,r_m(x)]$，并通过条件化偏好向量 $\mathbf{w}$ 学习一族策略 $\pi_\theta(\cdot|s,\mathbf{w})$。该设计使模型能够在单次训练后覆盖不同目标权衡，并在采样时按需求探索 Pareto 区域。实现上，我们参考 GFlowNet 的流匹配思想以提升对高奖励区域的覆盖能力~\cite{bengio2021flow}。
+\subsection{GFlowNet}
+传统强化学习（RL）通常以“给定目标下求解单一最优策略”为核心~\citep{mnih2015human,sutton2018reinforcement}，即倾向于生成奖励最高的一条动作序列。近年来研究表明，在许多实际任务中，“生成一组具有多样性的高质量候选解”往往比“仅输出一个全局最优解”更有价值，这一点在分子设计~\citep{huang2016coming,zhang2021unifying,bengio2021flow}与强化学习探索~\citep{hazan2019provably}中尤为明显。以分子设计为例，模型不应只给出一个分数最高但难以合成的分子，而应提供一批性能接近最优、但在可合成性等维度上更具可操作性的候选分子，以支持后续实验筛选与决策。
+
+GFlowNet 的目标不是学习单一路径最优，而是学习一个在终止状态集合 $\mathcal{X}$ 上的采样分布 $p_\theta(x)$，使其与奖励函数成正比：
+\[
+p_\theta(x)\propto R(x),\quad x\in\mathcal{X},\;R(x)>0.
+\]
+在状态转移图中，设 $F_\theta(s\!\rightarrow\!s')$ 为边流、$F_\theta(s)$ 为状态总流，则对任一非初始且非终止中间状态需满足流守恒：
+\[
+\sum_{s''\rightarrow s}F_\theta(s''\!\rightarrow\!s)=\sum_{s\rightarrow s'}F_\theta(s\!\rightarrow\!s').
+\]
+对终止状态 $x$，其入流等于奖励，即 $F_\theta(x)=R(x)$。在本文场景中，终止状态对应完整分子；我们将代理模型给出的多性质评分聚合为标量奖励并做正值化处理，以保证可用于流匹配训练。
+
+实现上，我们采用前向策略 $P_F(a_t|s_t)$ 逐步执行 \textit{add}/\textit{combine}/\textit{stop} 动作生成分子，并以反向策略 $P_B(s_t|s_{t+1})$ 近似逆过程。给定轨迹 $\tau=(s_0\!\rightarrow\!s_1\!\rightarrow\!\cdots\!\rightarrow\!x)$，训练时使用 Trajectory Balance 目标~\cite{bengio2021flow}：
+\[
+\mathcal{L}_{TB}=
+\left(
+\log Z_\theta+\sum_{t=0}^{T-1}\log P_F(s_{t+1}|s_t)
+-\log R(x)-\sum_{t=0}^{T-1}\log P_B(s_t|s_{t+1})
+\right)^2,
+\]
+其中 $Z_\theta$ 为可学习配分函数。该目标直接约束整条生成轨迹的前向概率与终止奖励一致，从而在高奖励区域保持采样强度的同时避免策略塌缩到单一结构，提高候选分子的多样性与可探索性。
+
+\subsection{多目标GFlowNet}
+单目标 GFlowNet 仅对应一个标量奖励 $R(x)$，而在本任务中每个分子同时对应多维性质向量 $\mathbf{r}(x)=[r_1(x),\dots,r_m(x)]$。为在一次训练中覆盖不同目标权衡，我们引入偏好向量 $\boldsymbol{\omega}\in\Delta^{m-1}$，并学习条件化策略
+\[
+\pi_\theta(\cdot|s,\boldsymbol{\omega}),\quad P_F(\cdot|s,\boldsymbol{\omega}),\quad P_B(\cdot|s',\boldsymbol{\omega}).
+\]
+其中，训练时偏好并非固定，而是从分布 $p(\boldsymbol{\omega})$ 采样；$p(\boldsymbol{\omega})$ 将直接影响模型覆盖的 Pareto 前沿区域。本文采用
+\[
+\boldsymbol{\omega}\sim \mathrm{Dirichlet}(\boldsymbol{\alpha}),
+\]
+并在输入策略网络时对 $\boldsymbol{\omega}$ 使用 thermometer encoding（离散分桶的单调累计编码）以增强偏好条件信号表达~\cite{buckman2018thermometer}。给定 $\boldsymbol{\omega}$ 后，将向量奖励标量化为
+\[
+R(x|\boldsymbol{\omega})=g\!\left(\boldsymbol{\omega},\mathbf{r}(x)\right),
+\]
+并引入奖励指数 $\beta>0$，使目标分布满足
+\[
+\pi(x|\boldsymbol{\omega})\propto R(x|\boldsymbol{\omega})^{\beta}.
+\]
+该设计会强化策略对 $R(x|\boldsymbol{\omega})$ 模式区域（高奖励峰值区域）的关注，从而更易生成高质量且保持多样性的候选分子。$\beta$ 控制“多样性--高奖励”权衡：较大的 $\beta$ 倾向于集中在更高奖励区域，较小的 $\beta$ 则保留更广覆盖。结合 TB 训练目标，可写为
+\[
+\mathcal{L}_{MTB}=
+\left(
+\log Z_\theta(\boldsymbol{\omega})
++\sum_{t=0}^{T-1}\log P_F(s_{t+1}|s_t,\boldsymbol{\omega})
+-\beta\log R(x|\boldsymbol{\omega})
+-\sum_{t=0}^{T-1}\log P_B(s_t|s_{t+1},\boldsymbol{\omega})
+\right)^2.
+\]
+推理阶段通过采样 $\boldsymbol{\omega}$，可获得覆盖 Pareto 前沿不同区域的一组候选分子；不同 $p(\boldsymbol{\omega})$ 与 $\beta$ 的影响在实验部分进行对比分析~\cite{bengio2021flow,zhang2023distributional}。
+
 \subsection{主动学习逻辑}
 我们采用“生成--评估--回流训练”的主动学习闭环。每轮迭代中，模型先生成候选分子并进行性质评估；随后根据不确定性与非支配排序联合选择样本，优先保留位于或接近 Pareto front 的高信息样本；最后将新增标注样本并入训练集更新策略模型。该流程在控制评估成本的同时，持续提升模型在 Pareto 前沿附近的采样效率与解的质量。我们首先使用初始数据集D0来训练该代理模型。然后在每次迭代中，我们都会生成一系列pareto前沿的分子，并使用代理模型进行评估。我们根据代理模型的评估结果，选择一系列分子进行真实评估。然后，我们将这些分子加入到训练数据集中，更新代理模型。
 \bibliography{reference}
