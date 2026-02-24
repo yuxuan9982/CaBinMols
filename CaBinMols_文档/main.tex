@@ -24,7 +24,7 @@
 
 
 \subsection{GFlowNet}
-传统强化学习（RL）通常以“给定目标下求解单一最优策略”为核心~\citep{mnih2015human,sutton2018reinforcement}，即倾向于生成奖励最高的一条动作序列。近年来研究表明，在许多实际任务中，“生成一组具有多样性的高质量候选解”往往比“仅输出一个全局最优解”更有价值，这一点在分子设计~\citep{huang2016coming,zhang2021unifying,bengio2021flow}与强化学习探索~\citep{hazan2019provably}中尤为明显。以分子设计为例，模型不应只给出一个分数最高但难以合成的分子，而应提供一批性能接近最优、但在可合成性等维度上更具可操作性的候选分子，以支持后续实验筛选与决策。
+传统强化学习（RL）通常以“给定目标下求解单一最优策略”为核心，即倾向于生成奖励最高的一条动作序列。近年来研究表明，在许多实际任务中，“生成一组具有多样性的高质量候选解”往往比“仅输出一个全局最优解”更有价值，这一点在分子设计与强化学习探索中尤为明显。以分子设计为例，模型不应只给出一个分数最高但难以合成的分子，而应提供一批性能接近最优、但在可合成性等维度上更具可操作性的候选分子，以支持后续实验筛选与决策。
 
 GFlowNet 的目标不是学习单一路径最优，而是学习一个在终止状态集合 $\mathcal{X}$ 上的采样分布 $p_\theta(x)$，使其与奖励函数成正比：
 \[
@@ -36,7 +36,7 @@ p_\theta(x)\propto R(x),\quad x\in\mathcal{X},\;R(x)>0.
 \]
 对终止状态 $x$，其入流等于奖励，即 $F_\theta(x)=R(x)$。在本文场景中，终止状态对应完整分子；我们将代理模型给出的多性质评分聚合为标量奖励并做正值化处理，以保证可用于流匹配训练。
 
-实现上，我们采用前向策略 $P_F(a_t|s_t)$ 逐步执行 \textit{add}/\textit{combine}/\textit{stop} 动作生成分子，并以反向策略 $P_B(s_t|s_{t+1})$ 近似逆过程。给定轨迹 $\tau=(s_0\!\rightarrow\!s_1\!\rightarrow\!\cdots\!\rightarrow\!x)$，训练时使用 Trajectory Balance 目标~\cite{bengio2021flow}：
+实现上，我们采用前向策略 $P_F(a_t|s_t)$ 逐步执行 \textit{add}/\textit{combine}/\textit{stop} 动作生成分子，并以反向策略 $P_B(s_t|s_{t+1})$ 近似逆过程。给定轨迹 $\tau=(s_0\!\rightarrow\!s_1\!\rightarrow\!\cdots\!\rightarrow\!x)$，训练时使用 Trajectory Balance 目标：
 \[
 \mathcal{L}_{TB}=
 \left(
@@ -55,7 +55,7 @@ p_\theta(x)\propto R(x),\quad x\in\mathcal{X},\;R(x)>0.
 \[
 \boldsymbol{\omega}\sim \mathrm{Dirichlet}(\boldsymbol{\alpha}),
 \]
-并在输入策略网络时对 $\boldsymbol{\omega}$ 使用 thermometer encoding（离散分桶的单调累计编码）以增强偏好条件信号表达~\cite{buckman2018thermometer}。给定 $\boldsymbol{\omega}$ 后，将向量奖励标量化为
+并在输入策略网络时对 $\boldsymbol{\omega}$ 使用 thermometer encoding（离散分桶的单调累计编码）以增强偏好条件信号表达。给定 $\boldsymbol{\omega}$ 后，将向量奖励标量化为
 \[
 R(x|\boldsymbol{\omega})=g\!\left(\boldsymbol{\omega},\mathbf{r}(x)\right),
 \]
@@ -63,20 +63,116 @@ R(x|\boldsymbol{\omega})=g\!\left(\boldsymbol{\omega},\mathbf{r}(x)\right),
 \[
 \pi(x|\boldsymbol{\omega})\propto R(x|\boldsymbol{\omega})^{\beta}.
 \]
-该设计会强化策略对 $R(x|\boldsymbol{\omega})$ 模式区域（高奖励峰值区域）的关注，从而更易生成高质量且保持多样性的候选分子。$\beta$ 控制“多样性--高奖励”权衡：较大的 $\beta$ 倾向于集中在更高奖励区域，较小的 $\beta$ 则保留更广覆盖。结合 TB 训练目标，可写为
+该设计会强化策略对 $R(x|\boldsymbol{\omega})$ 模式区域（高奖励峰值区域）的关注，从而更易生成高质量且保持多样性的候选分子。结合 TB 训练目标，可写为
 \[
 \mathcal{L}_{MTB}=
 \left(
 \log Z_\theta(\boldsymbol{\omega})
 +\sum_{t=0}^{T-1}\log P_F(s_{t+1}|s_t,\boldsymbol{\omega})
--\beta\log R(x|\boldsymbol{\omega})
+-\log R(x|\boldsymbol{\omega})
 -\sum_{t=0}^{T-1}\log P_B(s_t|s_{t+1},\boldsymbol{\omega})
 \right)^2.
 \]
-推理阶段通过采样 $\boldsymbol{\omega}$，可获得覆盖 Pareto 前沿不同区域的一组候选分子；不同 $p(\boldsymbol{\omega})$ 与 $\beta$ 的影响在实验部分进行对比分析~\cite{bengio2021flow,zhang2023distributional}。
+推理阶段通过采样 $\boldsymbol{\omega}$，可获得覆盖 Pareto 前沿不同区域的一组候选分子；不同 $p(\boldsymbol{\omega})$ 的影响在实验部分进行对比分析。
 
-\subsection{主动学习逻辑}
-我们采用“生成--评估--回流训练”的主动学习闭环。每轮迭代中，模型先生成候选分子并进行性质评估；随后根据不确定性与非支配排序联合选择样本，优先保留位于或接近 Pareto front 的高信息样本；最后将新增标注样本并入训练集更新策略模型。该流程在控制评估成本的同时，持续提升模型在 Pareto 前沿附近的采样效率与解的质量。我们首先使用初始数据集D0来训练该代理模型。然后在每次迭代中，我们都会生成一系列pareto前沿的分子，并使用代理模型进行评估。我们根据代理模型的评估结果，选择一系列分子进行真实评估。然后，我们将这些分子加入到训练数据集中，更新代理模型。
+\subsection{主动学习}
+我们采用“生成--评估--回流训练”的主动学习闭环。首先，使用初始标注数据集 $D_0$ 训练代理模型与生成策略。随后在第 $k$ 轮迭代中，模型先生成一批候选分子并由代理模型进行快速打分；再结合预测不确定性与非支配排序（Pareto ranking）选择高信息样本，优先保留位于或接近 Pareto front 的候选；最后对入选样本进行真实评估，并将新获得的标注数据并入训练集 $D_{k+1}=D_k\cup\mathcal{B}_k$，用于下一轮模型更新。该流程在控制真实评估成本的同时，持续提升模型在 Pareto 前沿附近的采样效率与候选质量。
+
+\subsection{离线+在线，模型迭代最可靠的方式}
+随着主动学习迭代推进，会累积大量离线数据（包含代理预测样本与真实评估样本）。在大规模、稀疏高分区域的分子搜索任务中，这些数据不仅能提升样本效率，也能显著稳定训练过程。基于此，我们采用“离线+在线”联合迭代范式：离线阶段利用历史数据学习稳定分布，在线阶段依托代理奖励持续探索新区域，实现“利用--探索”的动态平衡。
+
+具体而言，离线部分采用 COFlowNet 框架，通过区分受支持与不受支持转移，缓解纯离线训练中目标分布偏移问题；在线部分采用 GFlowNet-proxy，在离线覆盖不足区域提供更强的外推能力。我们进一步提出不确定性驱动的混合前向策略。状态 $s$ 的不确定性由深度集成（Deep Ensemble）代理模型估计为 $u(s)$，并将其映射为混合系数
+\[
+\alpha_1(s)=\exp\!\left(-\frac{u(s)}{\tau}\right),\qquad
+\alpha_2(s)=1-\alpha_1(s),
+\]
+其中 $\tau>0$ 为温度参数。最终前向策略写为
+\[
+P_F(\cdot|s)=\alpha_1(s)\,P_F^{\mathrm{COF}}(\cdot|s)+\alpha_2(s)\,P_F^{\mathrm{proxy}}(\cdot|s).
+\]
+当 $u(s)$ 较小（离线覆盖充分）时，策略更依赖 COFlowNet；当 $u(s)$ 较大（离线覆盖稀疏）时，策略自动提高对在线策略的权重，从而在保证稳定性的同时增强对新颖高价值分子的发现能力。除上述策略外，我们还设计了其他几种混合策略，包括：
+\begin{itemize}
+\item \textbf{阈值切换策略（Hard Switch）}：设不确定性阈值 $\delta$，
+\[
+P_F(\cdot|s)=
+\begin{cases}
+P_F^{\mathrm{COF}}(\cdot|s), & u(s)\le \delta,\\
+P_F^{\mathrm{proxy}}(\cdot|s), & u(s)>\delta.
+\end{cases}
+\]
+该策略具有明确的决策边界，但可能在阈值附近产生不连续切换。
+\item \textbf{竞争式 Softmax 融合（Score-based Softmax）}：构造两路置信分数 $q_1(s),q_2(s)$，并令
+\[
+\alpha_i(s)=\frac{\exp(q_i(s)/\tau)}{\sum_{j=1}^{2}\exp(q_j(s)/\tau)},\quad
+P_F(\cdot|s)=\sum_{i=1}^{2}\alpha_i(s)\,P_F^{(i)}(\cdot|s),
+\]
+其中 $P_F^{(1)}=P_F^{\mathrm{COF}}$，$P_F^{(2)}=P_F^{\mathrm{proxy}}$。该策略平滑且可学习。
+\item \textbf{阶段性退火融合（Iteration Annealing）}：在第 $k$ 轮主动学习时设置
+\[
+\alpha_1^{(k)}=\max\!\left(\alpha_{\min},1-\frac{k}{K}\right),\qquad
+\alpha_2^{(k)}=1-\alpha_1^{(k)},
+\]
+\[
+P_F^{(k)}(\cdot|s)=\alpha_1^{(k)}P_F^{\mathrm{COF}}(\cdot|s)+\alpha_2^{(k)}P_F^{\mathrm{proxy}}(\cdot|s).
+\]
+该策略前期偏向离线稳定训练，后期逐步增强在线探索能力。
+\end{itemize}
+
+由此，我们提出了 Offline with Online Multi-Objective GFlowNet（OWOMGFN）。其核心思想是统一
+COFlowNet 的离线稳定性与 GFlowNet-proxy 的在线探索能力：先利用历史数据进行离线流匹配，在受支持转移上学习稳健策略；再在每轮主动学习中基于代理模型对新候选进行快速评估，并将高价值样本回流至训练集持续迭代。具体而言，我们首先将 COFlowNet 扩展到多目标场景。由于离线数据可提供准确的多目标奖励，训练时可通过采样不同偏好向量 $\boldsymbol{\omega}$（或等价地调节 Dirichlet 参数 $\boldsymbol{\alpha}$）学习对 Pareto 前沿不同区域的覆盖。随后，我们引入不确定性驱动的混合前向策略，在“已知高置信区域”偏向离线策略，在“未知稀疏区域”自动提升在线策略权重，从而在样本效率、稳定性与新颖性之间取得更优平衡。考虑到本任务中 oracle 评估耗时显著高于 GFlowNet 训练与采样开销，我们在每轮主动学习迭代中均基于最新数据重新训练离线策略、在线策略与代理模型。
+
+具体的训练与采样流程如算法~\ref{alg:owomgfn} 所示。
+
+\begin{lstlisting}[language=Python,caption={OWOMGFN training and sampling pipeline},label={alg:owomgfn}]
+# Input:
+# D0: initial labeled dataset
+# K : active learning rounds
+# tau: uncertainty temperature
+# alpha: Dirichlet parameter for preference sampling
+#
+# Models:
+# PF_COF, PB_COF      : offline forward/backward policies (COFlowNet)
+# PF_proxy, PB_proxy  : online forward/backward policies (GFlowNet-proxy)
+# f_hat_ens           : deep-ensemble proxy for reward + uncertainty
+
+D = D0
+
+for k in range(1, K + 1):
+    # Stage 1: retrain all models on the latest dataset
+    Train(f_hat_ens, on=D, objective="multi-objective regression")
+    Train(PF_COF, PB_COF, on=D,
+          objective="offline multi-objective TB/flow matching",
+          pref_sampler=Dirichlet(alpha))
+    Train(PF_proxy, PB_proxy, on=D, reward=f_hat_ens,
+          objective="online multi-objective TB",
+          pref_sampler=Dirichlet(alpha))
+
+    # Stage 2: hybrid policy rollout
+    C = []  # generated candidates
+    for episode in range(N_rollout):
+        omega = SampleDirichlet(alpha)
+        s = s0
+        while not terminal(s):
+            u = Uncertainty(f_hat_ens, s)
+            alpha1 = exp(-u / tau)
+            alpha2 = 1 - alpha1
+            PF_mix = alpha1 * PF_COF(. | s, omega) + alpha2 * PF_proxy(. | s, omega)
+            a = SampleAction(PF_mix)
+            s = Transition(s, a)
+        C.append(s)  # terminal molecule
+
+    # Stage 3: proxy evaluation + Pareto selection
+    Y_hat = PredictObjectives(f_hat_ens, C)  # multi-objective prediction
+    U_hat = PredictUncertainty(f_hat_ens, C)
+    B = SelectByParetoAndUncertainty(C, Y_hat, U_hat, budget=B_k)
+
+    # Stage 4: expensive oracle labeling and dataset update
+    Y_true = OracleEvaluate(B)
+    D = D union {(x, y) for x, y in zip(B, Y_true)}
+
+return Trained policies and Pareto-diverse molecule set
+\end{lstlisting}
+
 \bibliography{reference}
 \bibliographystyle{IEEEtran}
 \end{document}
